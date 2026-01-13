@@ -468,12 +468,17 @@ function enableSend() {
 
         function typeNext() {
             if (nodeIndex >= textNodes.length) {
-                element.parentElement
-                    ?.querySelector('.bubble-actions')
-                    ?.classList.add('show');
-                return;
-            }
+    element.parentElement
+        ?.querySelector('.bubble-actions')
+        ?.classList.add('show');
 
+    // ✅ RENDER MATH AFTER TYPING IS DONE
+    if (window.MathJax) {
+        MathJax.typesetPromise([element]);
+    }
+
+    return;
+       }
             const words = originals[nodeIndex].split(/(\s+)/);
 
             if (wordIndex < words.length) {
