@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password - Fila Assistant</title>
+
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+form {
+    background:#fff;
+    padding:40px 30px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+    width:100%;
+    max-width:450px;
+    text-align:center;
+}
+h2 { margin-bottom:25px; }
+input {
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:10px;
+}
+button {
+    width:100%;
+    padding:15px;
+    margin-top:15px;
+    background:#007bff;
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+button:hover { background:#0056b3; }
+.hidden { display:none; }
+.message { margin-top:12px; color:green; }
+.error { color:red; }
+.show-pass { display:flex; align-items:center; margin-top:5px; }
+.show-pass input { width:auto; margin-right:6px; }
+</style>
+</head>
+
+<body>
+
+<form id="forgotForm">
+<h2>Reset Password</h2>
+
+<!-- STEP 1 -->
+<div id="emailStep">
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="button" id="fetchQuestionBtn">Fetch Secret Question</button>
+</div>
+
+<!-- STEP 2 -->
+<div id="questionStep" class="hidden">
+    <label id="secretQuestionLabel"></label>
+    <input type="text" name="secretAnswer" placeholder="Enter your answer">
+    <button type="button" id="verifyAnswerBtn">Continue</button>
+</div>
+
+<!-- STEP 3 -->
+<div id="passwordStep" class="hidden">
+    <input type="password" name="newPassword" placeholder="New password">
+    <input type="password" name="confirmNewPassword" placeholder="Confirm password">
+
+    <div class="show-pass">
+        <input type="checkbox" id="toggleNewPassword">
+        <label for="toggleNewPassword">Show password</label>
+    </div>
+
+    <button type="submit">Change Password</button>
+</div>
+
+<p><a href="login.html">Back to Login</a></p>
+<div class="message" id="message"></div>
+</form>
+
+<script>
+const msg = document.getElementById('message');
+const questionStep = document.getElementById('questionStep');
+const passwordStep = document.getElementById('passwordStep');
+const secretQuestionLabel = document.getElementById('secretQuestionLabel');
+
+// Toggle password view
+document.getElementById('toggleNewPassword').addEventListener('change', e => {
+    const type = e.target.checked ? 'text' : 'password';
+    document.querySelector('[name="newPassword"]').type = type;
+    document.querySelector('[name="confirmNewPassword"]').type = type;
+});
+
+// STEP 1: Fetch question
+document.getElementById('fetchQuestionBtn').addEventListener('click', async () => {
+    msg.textContent = "";
+    msg.classList.remove('error');
+
+    const email = document.querySelector('[name="email"]').value.trim().toLowerCase();
+    if (!email) {
+        msg.textContent = "Please enter email";
+        msg.classList.add('error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/get-secret-question', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.question) {
+            secretQuestionLabel.textContent = data.question;
+            questionStep.classList.remove('hidden');
+        } else {
+            msg.textContent = data.error || "User not found";
+            msg.classList.add('error');
+        }
+    } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add('error');
+    }
+});
+
+// STEP 2: Show password fields (NO BACKEND CALL)
+document.getElementById('verifyAnswerBtn').addEventListener('click', () => {
+    const answer = document.querySelector('[name="secretAnswer"]').value.trim();
+    if (!answer) {
+        msg.textContent = "Please enter your answer";
+        msg.classList.add('error');
+        return;
+    }
+
+    msg.textContent = "";
+    passwordStep.classList.remove('hidden');
+});
+
+// STEP 3: Change password (REAL BACKEND CALL)
+document.getElementById('forgotForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const email = document.querySelector('[name="email"]').value.trim().toLowerCase();
+    const answer = document.querySelector('[name="secretAnswer"]').value.trim();
+    const newPassword = document.querySelector('[name="newPassword"]').value;
+    const confirm = document.querySelector('[name="confirmNewPassword"]').value;
+
+    if (!newPassword || !confirm) {
+        msg.textContent = "Fill all fields";
+        msg.classList.add('error');
+        return;
+    }
+
+    if (newPassword !== confirm) {
+        msg.textContent = "Passwords do not match";
+        msg.classList.add('error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/reset-password', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, answer, newPassword })
+        });
+
+        const text = await res.text();
+
+        if (res.ok) {
+            msg.textContent = text;
+            setTimeout(() => location.href = "login.html", 1500);
+        } else {
+            msg.textContent = text;
+            msg.classList.add('error');
+        }
+    } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add('error');
+    }
+});
+</script>
+
+</body>
+            </html>

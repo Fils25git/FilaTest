@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create an account to Fila Assistant</title>
+    <meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+    
+
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+form {
+    background:#fff;
+    padding:40px 30px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+    width:100%;
+    max-width:480px;
+}
+
+h2 {
+    text-align:center;
+    margin-bottom:25px;
+    font-size:28px;
+    color:#333;
+}
+
+label {
+    display:block;
+    text-align:left;
+    font-weight:600;
+    margin-top:15px;
+    margin-bottom:5px;
+    color:#333;
+}
+
+label span {
+    color:red;
+}
+
+input, select {
+    width:100%;
+    padding:14px 12px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+}
+
+input:focus, select:focus {
+    border-color:#007bff;
+    outline:none;
+}
+
+button {
+    width:100%;
+    padding:15px;
+    margin-top:25px;
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+button:hover {
+    background: linear-gradient(to right, #0056b3, #00a0cc);
+}
+
+.show-pass {
+    margin-top:8px;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+}
+
+.show-pass input {
+    width:auto;
+    margin-right:6px;
+}
+
+p, .terms {
+    font-size:14px;
+    margin-top:15px;
+    text-align:center;
+}
+
+p a, .terms a {
+    color:#007bff;
+    text-decoration:none;
+}
+
+#floatingMessage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: none;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<form id="signupForm">
+    <h1> Welcome to Fila Assistant</h1>
+<h2>Create an account</h2>
+
+<label>Full Name <span>*</span></label>
+<input type="text" name="name" placeholder="Enter your full name" required>
+
+<label>Email Address <span>*</span></label>
+<input type="email" name="email" placeholder="Enter your email address" required>
+
+<label>Password <span>*</span></label>
+<input type="password" name="password" placeholder="Create a password (min 6 characters)" minlength="6" required>
+
+<label>Confirm Password <span>*</span></label>
+<input type="password" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
+
+<div class="show-pass">
+    <input type="checkbox" id="togglePassword">
+    <label for="togglePassword">Show Password</label>
+</div>
+
+<label>Are you a teacher? <span>*</span></label>
+<select name="role" required>
+    <option value="">Are you a teacher ?</option>
+    <option value="teacher">Yes</option>
+    <option value="student">No</option>
+</select>
+
+<label>Phone Number <span>*</span></label>
+<input type="tel" name="phone" placeholder="e.g. 078xxxxxxx" required>
+
+<label>Recovery Email</label>
+<input type="email" name="recoveryEmail" placeholder="Optional recovery email">
+
+<!-- ✅ ADDED: SECRET QUESTION -->
+<label>Secret Question <span>*</span></label>
+<select name="secretQuestion" id="secretQuestion" required>
+    <option value="">Select a question</option>
+    <option value="pet">What was the name of your first pet?</option>
+    <option value="school">What is the name of your first school?</option>
+</select>
+
+<label>Secret Answer <span>*</span></label>
+<input type="text" name="secretAnswer" placeholder="Your answer" required>
+
+<button type="submit">Sign Up</button>
+
+<p>Already have an account? <a href="login.html">Login</a></p>
+
+<p class="terms">
+By signing up, you agree to our
+<a href="terms.html" target="_blank">Terms</a> &
+<a href="privacy.html" target="_blank">Privacy Policy</a>.
+</p>
+</form>
+
+<div id="floatingMessage"></div>
+
+<script>
+const toggle = document.getElementById('togglePassword');
+const password = document.querySelector('[name="password"]');
+const confirmPassword = document.querySelector('[name="confirmPassword"]');
+
+toggle.addEventListener('change', () => {
+    const type = toggle.checked ? 'text' : 'password';
+    password.type = type;
+    confirmPassword.type = type;
+});
+
+const floatingMsg = document.getElementById('floatingMessage');
+
+function showFloatingMessage(message, type = "success") {
+    floatingMsg.textContent = message;
+    floatingMsg.style.background = type === "success" ? "#28a745" : "#dc3545";
+    floatingMsg.style.display = "block";
+    setTimeout(() => floatingMsg.style.display = "none", 4000);
+}
+
+/* ✅ ADDED: disable remaining secret question */
+const secretSelect = document.getElementById('secretQuestion');
+secretSelect.addEventListener('change', () => {
+    [...secretSelect.options].forEach(opt => {
+        if (opt.value && opt.value !== secretSelect.value) {
+            opt.disabled = true;
+        }
+    });
+});
+
+document.getElementById('signupForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const form = e.target;
+    const passwordVal = form.password.value;
+    const confirmPasswordVal = form.confirmPassword.value;
+
+    if (passwordVal.length < 6) {
+        showFloatingMessage("Password must be at least 6 characters", "error");
+        return;
+    }
+
+    if (passwordVal !== confirmPasswordVal) {
+        showFloatingMessage("Passwords do not match", "error");
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/create-user', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                password: passwordVal,
+                role: form.role.value,
+                phone: form.phone.value.trim(),
+                recoveryEmail: form.recoveryEmail.value.trim(),
+                secretQuestion: form.secretQuestion.value,
+                secretAnswer: form.secretAnswer.value.trim()
+            })
+        });
+
+        const text = await res.text();
+
+        if (res.ok) {
+            showFloatingMessage("Account created! Redirecting...", "success");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+        } else {
+            showFloatingMessage(text, "error");
+        }
+
+    } catch (err) {
+        showFloatingMessage(err.message, "error");
+    }
+});
+</script>
+
+</body>
+                    </html>
