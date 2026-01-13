@@ -532,50 +532,58 @@ function enableSend() {
     const container = document.createElement("div");
     container.innerHTML = currentNotesHTML;
 
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase();
 
-    /* ===============================
-       1️⃣ Try SECTION-BASED SEARCH
-       (for notes like Mathematics)
-    ================================ */
-    const sections = container.querySelectorAll(
-        ".unit-header, .content-section, .exercise"
+    /* =====================================
+       1️⃣ HEADING-BASED SEARCH (PRIMARY)
+       Extract content under matched heading
+    ====================================== */
+    const headings = Array.from(
+        container.querySelectorAll("h1, h2, h3, h4, h5, h6")
     );
 
-    if (sections.length) {
-        for (const section of sections) {
-            if (section.textContent.toLowerCase().includes(q)) {
-                return section.outerHTML;
-            }
-        }
-    }
-
-    /* ===============================
-       2️⃣ FALLBACK: HEADING-BASED SEARCH
-       (for clean linear notes)
-    ================================ */
-    const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
     const target = headings.find(h =>
         h.textContent.toLowerCase().includes(q)
     );
 
-    if (!target) return null;
+    if (target) {
+        const level = parseInt(target.tagName[1], 10);
+        let html = target.outerHTML;
 
-    const level = parseInt(target.tagName[1]);
-    let html = target.outerHTML;
+        let node = target.nextElementSibling;
 
-    let node = target.nextSibling;
-    while (node) {
-        if (node.nodeType === 1 && /^H[1-6]$/i.test(node.tagName)) {
-            if (parseInt(node.tagName[1]) <= level) break;
+        while (node) {
+            // Stop when reaching same or higher heading level
+            if (
+                /^H[1-6]$/i.test(node.tagName) &&
+                parseInt(node.tagName[1], 10) <= level
+            ) {
+                break;
+            }
+
+            html += node.outerHTML;
+            node = node.nextElementSibling;
         }
-        if (node.nodeType === 1) html += node.outerHTML;
-        node = node.nextSibling;
+
+        return html;
     }
 
-    return html;
-                      }
+    /* =====================================
+       2️⃣ SECTION-BASED SEARCH (FALLBACK)
+       For broad matches like "Algebra"
+    ====================================== */
+    const sections = container.querySelectorAll(
+        ".unit-header, .content-section, .exercise"
+    );
 
+    for (const section of sections) {
+        if (section.textContent.toLowerCase().includes(q)) {
+            return section.outerHTML;
+        }
+    }
+
+    return null;
+}
     /* ===============================
        CREATE NOTE BUBBLE
     ================================ */
