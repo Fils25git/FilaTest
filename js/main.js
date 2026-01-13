@@ -553,13 +553,20 @@ function enableSend() {
     if (!target) return null;
 
     const targetLevel = parseInt(target.tagName[1], 10);
-
-    // 2️⃣ Collect ONLY sibling blocks
     let html = target.outerHTML;
-    let node = target.nextElementSibling;
 
-    while (node) {
-        // Stop at next heading of same or higher level
+    // 2️⃣ Walk DOM (div-agnostic but scoped)
+    const walker = document.createTreeWalker(
+        target.parentElement,
+        NodeFilter.SHOW_ELEMENT,
+        null
+    );
+
+    walker.currentNode = target;
+
+    while (walker.nextNode()) {
+        const node = walker.currentNode;
+
         if (
             /^H[1-6]$/i.test(node.tagName) &&
             parseInt(node.tagName[1], 10) <= targetLevel
@@ -567,8 +574,9 @@ function enableSend() {
             break;
         }
 
+        if (node === target) continue;
+
         html += node.outerHTML;
-        node = node.nextElementSibling;
     }
 
     return html;
