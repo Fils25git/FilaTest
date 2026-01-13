@@ -539,7 +539,9 @@ function searchNotes(query) {
 
     const q = query.trim().toLowerCase();
 
-    // 1️⃣ Find matching heading
+    /* =====================================
+       1️⃣ FIND MATCHING HEADING
+    ====================================== */
     const headings = Array.from(
         container.querySelectorAll("h1, h2, h3, h4, h5, h6")
     );
@@ -551,11 +553,14 @@ function searchNotes(query) {
     if (!target) return null;
 
     const targetLevel = parseInt(target.tagName[1], 10);
+
+    /* =====================================
+       2️⃣ WALK DOM IGNORING <div>
+    ====================================== */
     let html = target.outerHTML;
 
-    // 2️⃣ Walk DOM (div-agnostic but scoped)
     const walker = document.createTreeWalker(
-        target.parentElement,
+        container,
         NodeFilter.SHOW_ELEMENT,
         null
     );
@@ -565,6 +570,7 @@ function searchNotes(query) {
     while (walker.nextNode()) {
         const node = walker.currentNode;
 
+        // Stop at next same or higher heading
         if (
             /^H[1-6]$/i.test(node.tagName) &&
             parseInt(node.tagName[1], 10) <= targetLevel
@@ -572,6 +578,7 @@ function searchNotes(query) {
             break;
         }
 
+        // Skip the target itself
         if (node === target) continue;
 
         html += node.outerHTML;
@@ -579,7 +586,6 @@ function searchNotes(query) {
 
     return html;
 }
-
     
     /* ===============================
        CREATE NOTE BUBBLE
