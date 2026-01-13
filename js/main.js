@@ -531,7 +531,6 @@ function enableSend() {
     /* ===============================
        SEARCH NOTES BY HEADING
     ================================ */
-
 function searchNotes(query) {
     if (!currentNotesHTML) return null;
 
@@ -575,13 +574,13 @@ function searchNotes(query) {
 
         if (node === target) continue;
 
-        
-    html += node.outerHTML;
-                          
+        html += node.outerHTML;
     }
 
     return html;
 }
+
+    
     /* ===============================
        CREATE NOTE BUBBLE
     ================================ */
