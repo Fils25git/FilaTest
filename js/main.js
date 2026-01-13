@@ -526,7 +526,8 @@ function enableSend() {
     /* ===============================
        SEARCH NOTES BY HEADING
     ================================ */
-    function searchNotes(query) {
+
+function searchNotes(query) {
     if (!currentNotesHTML) return null;
 
     const container = document.createElement("div");
@@ -535,8 +536,7 @@ function enableSend() {
     const q = query.trim().toLowerCase();
 
     /* =====================================
-       1️⃣ HEADING-BASED SEARCH (PRIMARY)
-       Extract content under matched heading
+       1️⃣ FIND MATCHING HEADING
     ====================================== */
     const headings = Array.from(
         container.querySelectorAll("h1, h2, h3, h4, h5, h6")
@@ -546,44 +546,42 @@ function enableSend() {
         h.textContent.toLowerCase().includes(q)
     );
 
-    if (target) {
-        const level = parseInt(target.tagName[1], 10);
-        let html = target.outerHTML;
+    if (!target) return null;
 
-        let node = target.nextElementSibling;
-
-        while (node) {
-            // Stop when reaching same or higher heading level
-            if (
-                /^H[1-6]$/i.test(node.tagName) &&
-                parseInt(node.tagName[1], 10) <= level
-            ) {
-                break;
-            }
-
-            html += node.outerHTML;
-            node = node.nextElementSibling;
-        }
-
-        return html;
-    }
+    const targetLevel = parseInt(target.tagName[1], 10);
 
     /* =====================================
-       2️⃣ SECTION-BASED SEARCH (FALLBACK)
-       For broad matches like "Algebra"
+       2️⃣ WALK DOM IGNORING <div>
     ====================================== */
-    const sections = container.querySelectorAll(
-        ".unit-header, .content-section, .exercise"
+    let html = target.outerHTML;
+
+    const walker = document.createTreeWalker(
+        container,
+        NodeFilter.SHOW_ELEMENT,
+        null
     );
 
-    for (const section of sections) {
-        if (section.textContent.toLowerCase().includes(q)) {
-            return section.outerHTML;
+    walker.currentNode = target;
+
+    while (walker.nextNode()) {
+        const node = walker.currentNode;
+
+        // Stop at next same or higher heading
+        if (
+            /^H[1-6]$/i.test(node.tagName) &&
+            parseInt(node.tagName[1], 10) <= targetLevel
+        ) {
+            break;
         }
+
+        // Skip the target itself
+        if (node === target) continue;
+
+        html += node.outerHTML;
     }
 
-    return null;
-}
+    return html;
+       }
     /* ===============================
        CREATE NOTE BUBBLE
     ================================ */
