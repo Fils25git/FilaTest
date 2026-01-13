@@ -472,13 +472,14 @@ function enableSend() {
         ?.querySelector('.bubble-actions')
         ?.classList.add('show');
 
-    // ✅ RENDER MATH AFTER TYPING IS DONE
-    if (window.MathJax) {
+    // ✅ FORCE MathJax to render FINAL content
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetClear([element]);
         MathJax.typesetPromise([element]);
     }
 
     return;
-       }
+           } 
             const words = originals[nodeIndex].split(/(\s+)/);
 
             if (wordIndex < words.length) {
