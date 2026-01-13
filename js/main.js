@@ -441,7 +441,7 @@ function enableSend() {
        SAFE WORD-BY-WORD TYPEWRITER
        (HTML / TABLE / IMAGE SAFE)
     ================================ */
-    function typeWriterPreserveHTML(element, html, delay = 20) {
+    function typeWriterPreserveHTML(element, html, delay = 10) {
 
         element.innerHTML = html;
 
@@ -532,7 +532,8 @@ function enableSend() {
     /* ===============================
        SEARCH NOTES BY HEADING
     ================================ */
-function searchNotes(query) {
+
+    function searchNotes(query) {
     if (!currentNotesHTML) return null;
 
     const container = document.createElement("div");
@@ -540,9 +541,7 @@ function searchNotes(query) {
 
     const q = query.trim().toLowerCase();
 
-    /* =====================================
-       1️⃣ FIND MATCHING HEADING
-    ====================================== */
+    // 1️⃣ Find matching heading
     const headings = Array.from(
         container.querySelectorAll("h1, h2, h3, h4, h5, h6")
     );
@@ -555,23 +554,12 @@ function searchNotes(query) {
 
     const targetLevel = parseInt(target.tagName[1], 10);
 
-    /* =====================================
-       2️⃣ WALK DOM IGNORING <div>
-    ====================================== */
+    // 2️⃣ Collect ONLY sibling blocks
     let html = target.outerHTML;
+    let node = target.nextElementSibling;
 
-    const walker = document.createTreeWalker(
-        container,
-        NodeFilter.SHOW_ELEMENT,
-        null
-    );
-
-    walker.currentNode = target;
-
-    while (walker.nextNode()) {
-        const node = walker.currentNode;
-
-        // Stop at next same or higher heading
+    while (node) {
+        // Stop at next heading of same or higher level
         if (
             /^H[1-6]$/i.test(node.tagName) &&
             parseInt(node.tagName[1], 10) <= targetLevel
@@ -579,15 +567,12 @@ function searchNotes(query) {
             break;
         }
 
-        // Skip the target itself
-        if (node === target) continue;
-
         html += node.outerHTML;
+        node = node.nextElementSibling;
     }
 
     return html;
-}
-    
+    }
     /* ===============================
        CREATE NOTE BUBBLE
     ================================ */
