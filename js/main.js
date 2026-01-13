@@ -570,13 +570,9 @@ function searchNotes(query) {
 
         if (node === target) continue;
 
-        // Append ONLY top-level block elements
-if (
-    node.parentElement === target.parentElement &&
-    ["P", "DIV", "TABLE", "UL", "OL"].includes(node.tagName)
-) {
+        
     html += node.outerHTML;
-                          }
+                          
     }
 
     return html;
