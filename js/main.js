@@ -527,32 +527,54 @@ function enableSend() {
        SEARCH NOTES BY HEADING
     ================================ */
     function searchNotes(query) {
-        if (!currentNotesHTML) return null;
+    if (!currentNotesHTML) return null;
 
-        const container = document.createElement("div");
-        container.innerHTML = currentNotesHTML;
+    const container = document.createElement("div");
+    container.innerHTML = currentNotesHTML;
 
-        const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
-        const target = headings.find(h =>
-            h.textContent.toLowerCase().includes(query.toLowerCase())
-        );
+    const q = query.toLowerCase();
 
-        if (!target) return null;
+    /* ===============================
+       1️⃣ Try SECTION-BASED SEARCH
+       (for notes like Mathematics)
+    ================================ */
+    const sections = container.querySelectorAll(
+        ".unit-header, .content-section, .exercise"
+    );
 
-        const level = parseInt(target.tagName[1]);
-        let html = target.outerHTML;
-
-        let node = target.nextSibling;
-        while (node) {
-            if (node.nodeType === 1 && /^H[1-6]$/.test(node.tagName)) {
-                if (parseInt(node.tagName[1]) <= level) break;
+    if (sections.length) {
+        for (const section of sections) {
+            if (section.textContent.toLowerCase().includes(q)) {
+                return section.outerHTML;
             }
-            if (node.nodeType === 1) html += node.outerHTML;
-            node = node.nextSibling;
         }
-
-        return html;
     }
+
+    /* ===============================
+       2️⃣ FALLBACK: HEADING-BASED SEARCH
+       (for clean linear notes)
+    ================================ */
+    const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
+    const target = headings.find(h =>
+        h.textContent.toLowerCase().includes(q)
+    );
+
+    if (!target) return null;
+
+    const level = parseInt(target.tagName[1]);
+    let html = target.outerHTML;
+
+    let node = target.nextSibling;
+    while (node) {
+        if (node.nodeType === 1 && /^H[1-6]$/i.test(node.tagName)) {
+            if (parseInt(node.tagName[1]) <= level) break;
+        }
+        if (node.nodeType === 1) html += node.outerHTML;
+        node = node.nextSibling;
+    }
+
+    return html;
+                      }
 
     /* ===============================
        CREATE NOTE BUBBLE
