@@ -474,10 +474,12 @@ function enableSend() {
         ?.classList.add('show');
 
     // ✅ FORCE MathJax to render FINAL content
-    if (window.MathJax && MathJax.typesetPromise) {
+    if (window.MathJax && MathJax.startup) {
+    MathJax.startup.promise.then(() => {
         MathJax.typesetClear([element]);
         MathJax.typesetPromise([element]);
-    }
+    });
+               }
 
     return;
            } 
