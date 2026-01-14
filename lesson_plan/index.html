@@ -201,48 +201,40 @@
 
 <script>
     // ===============================
-    // GLOBAL FLAGS
+    // AUTH CHECK + USER ID FETCH
     // ===============================
     const token = localStorage.getItem("auth_token");
     const userEmail = localStorage.getItem("user_email");
-    let userId = null;        // 🔹 ONLY ONE declaration
-    let userReady = false;    // 🔹 flag to mark when user is ready
+    let userId = null; // we will fetch it asynchronously
 
-    // ===============================
-    // ENSURE USER ID
-    // ===============================
+    if (!token) {
+        window.location.href = "../login.html";
+    }
+
+    // Fetch or ensure user_id is available
     async function ensureUserId() {
-        let storedId = localStorage.getItem("user_id");
+        const storedId = localStorage.getItem("user_id");
         if (storedId) return storedId;
+
+        if (!userEmail) throw new Error("No email found");
 
         const res = await fetch("/.netlify/functions/get-user-id", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: userEmail })
         });
-
         const data = await res.json();
 
-        if (!res.ok || !data.user_id) {
-            throw new Error("Unable to fetch user ID");
-        }
+        if (!res.ok || !data.user_id) throw new Error("Unable to fetch user ID");
 
         localStorage.setItem("user_id", data.user_id);
         return data.user_id;
     }
 
-    // ===============================
-    // AUTH CHECK
-    // ===============================
-    if (!token || !userEmail) {
-        window.location.href = "../login.html";
-    }
-
     (async () => {
         try {
             userId = await ensureUserId();
-            userReady = true; // 🔹 mark ready
-            console.log("✅ USER READY:", userId);
+            console.log("USER ID READY:", userId);
         } catch (err) {
             console.error(err);
             alert("Session expired. Please login again.");
@@ -309,11 +301,6 @@
     document.getElementById("lessonForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        if (!userReady) {
-            showFloatingMessage("⏳ Please wait, initializing session...");
-            return;
-        }
-
         const btn = document.querySelector(".generate-btn");
         btn.disabled = true;
         btn.textContent = "Fetching...";
@@ -335,6 +322,8 @@
                 body: JSON.stringify({ email: userEmail })
             });
 
+            // Ensure userId is ready before generating
+            if (!userId) userId = await ensureUserId();
             generateLessonPlan();
 
         } catch (err) {
@@ -375,6 +364,7 @@
         fetch(getRandomPlanFile(language))
             .then(res => res.text())
             .then(template => {
+
                 for (const key in data) {
                     template = template.replace(
                         new RegExp(`{{\\s*${key}\\s*}}`, "g"),
@@ -388,6 +378,7 @@
 
                 // 🔥 AUTO SAVE TO DATABASE
                 autoSavePlan(template, language, data.lessonTitle);
+
             })
             .catch(() => {
                 showFloatingMessage("❌ Failed to load lesson plan.");
@@ -398,12 +389,8 @@
     // AUTO SAVE FUNCTION (DATABASE)
     // ===============================
     async function autoSavePlan(content, language, title) {
-        if (!userId) {
-            console.warn("User ID not ready, skipping save.");
-            return;
-        }
-
         try {
+            if (!userId) userId = await ensureUserId(); // just in case
             const res = await fetch("/.netlify/functions/create-user-plan", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -428,7 +415,7 @@
     }
 
     // ===============================
-    // EDIT & COPY (UNCHANGED)
+    // EDIT & COPY
     // ===============================
     editBtn.addEventListener("click", () => {
         lessonPlanContent.contentEditable = true;
