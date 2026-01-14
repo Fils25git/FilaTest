@@ -202,6 +202,25 @@
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
+    async function ensureUserId() {
+    let userId = localStorage.getItem("user_id");
+    if (userId) return userId;
+
+    const res = await fetch("/.netlify/functions/get-user-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.user_id) {
+        throw new Error("Unable to fetch user ID");
+    }
+
+    localStorage.setItem("user_id", data.user_id);
+    return data.user_id;
+    }
 // ===============================
 // AUTH CHECK
 // ===============================
@@ -212,7 +231,19 @@ const userId = localStorage.getItem("user_id");
 if (!token || !userId) {
     window.location.href = "../login.html";
 }
+let userId;
 
+(async () => {
+    try {
+        userId = await ensureUserId();
+        console.log("USER ID READY:", userId);
+    } catch (err) {
+        console.error(err);
+        alert("Session error. Please login again.");
+        localStorage.clear();
+        window.location.href = "../login.html";
+    }
+})();
 // ===============================
 // FLOATING MESSAGE
 // ===============================
