@@ -1,6 +1,5 @@
 import { query } from './db.js'; // your db helper
 import jwt from 'jsonwebtoken';
-
 export async function handler(event) {
   try {
     const authHeader = event.headers.authorization;
