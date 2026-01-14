@@ -194,9 +194,7 @@
 </div>
 
 <div id="floatingMessage" class="floating-message"></div>
-    <footer>
-  &copy; 2026 Fila Assistant | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a>
-    </footer>
+
 
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -228,7 +226,7 @@ const token = localStorage.getItem("auth_token");
 const userEmail = localStorage.getItem("user_email");
 const userId = localStorage.getItem("user_id");
 
-if (!token || !userId) {
+if (!token || !userEmail) {
     window.location.href = "../login.html";
 }
 let userId;
