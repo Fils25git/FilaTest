@@ -17,7 +17,7 @@ export async function handler(event) {
     const plansRes = await query(
       `SELECT id, lesson_title, lesson_content, language, created_at
        FROM user_lesson_plans
-       WHERE user_id = $1
+       WHERE email = $1
        ORDER BY created_at DESC
        LIMIT 10`,
       [userId]
