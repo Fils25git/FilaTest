@@ -3,7 +3,7 @@ const { Pool } = require("pg");
 
 // Configure your database connection
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL, // Make sure your .env has DATABASE_URL
+    connectionString: process.env.NEON_DATABASE_URL, // Make sure your .env has DATABASE_URL
     ssl: { rejectUnauthorized: false } // for Netlify
 });
 
