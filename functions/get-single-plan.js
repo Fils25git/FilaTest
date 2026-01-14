@@ -15,7 +15,7 @@ export async function handler(event) {
     }
 
     const result = await pool.query(
-      `SELECT * FROM user_lesson_plans WHERE id = $1`,
+      `SELECT * FROM user_lesson_plans WHERE email = $1`,
       [id]
     );
 
