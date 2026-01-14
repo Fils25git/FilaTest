@@ -1,49 +1,55 @@
-// create-user-plan.js
-const { Client } = require("pg");
+// /.netlify/functions/create-user-plan.js
+const { Pool } = require("pg");
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+// Configure your database connection
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL, // Make sure your .env has DATABASE_URL
+    ssl: { rejectUnauthorized: false } // for Netlify
+});
 
-  try {
-    const client = new Client({
-      connectionString: process.env.NEON_DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-    await client.connect();
-
-    const body = JSON.parse(event.body);
-    const { user_id, lesson_title, lesson_content, language } = body;
-
-    if (!user_id || !lesson_title || !lesson_content) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ success: false, message: "Missing required fields" })
-      };
+exports.handler = async function(event) {
+    if (event.httpMethod !== "POST") {
+        return {
+            statusCode: 405,
+            body: JSON.stringify({ message: "Method not allowed" })
+        };
     }
 
-    const query = `
-      INSERT INTO user_lesson_plans(user_id, lesson_title, lesson_content, language)
-      VALUES($1, $2, $3, $4)
-      RETURNING *
-    `;
+    try {
+        const { email, lesson_title, lesson_content, language } = JSON.parse(event.body);
 
-    const values = [user_id, lesson_title, lesson_content, language || 'english'];
+        if (!email || !lesson_title || !lesson_content || !language) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ message: "Missing required fields" })
+            };
+        }
 
-    const res = await client.query(query, values);
-    await client.end();
+        // Insert the lesson plan into your table
+        const query = `
+            INSERT INTO user_plans (email, lesson_title, lesson_content, language, created_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            RETURNING id
+        `;
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, plan: res.rows[0] })
-    };
+        const values = [email, lesson_title, lesson_content, language];
 
-  } catch (err) {
-    console.error(err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, message: err.message })
-    };
-  }
+        const result = await pool.query(query, values);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                success: true,
+                message: "Lesson plan saved successfully",
+                plan_id: result.rows[0].id
+            })
+        };
+
+    } catch (err) {
+        console.error("Error saving lesson plan:", err);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ success: false, message: "Server error" })
+        };
+    }
 };
