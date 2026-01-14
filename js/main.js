@@ -442,6 +442,7 @@ function enableSend() {
        (HTML / TABLE / IMAGE SAFE)
     ================================ */
     function typeWriterPreserveHTML(element, html, delay = 10) {
+       html = normalizeMath(html);
 
         element.innerHTML = html;
 
@@ -495,7 +496,18 @@ function enableSend() {
 
         typeNext();
     }
+function normalizeMath(content) {
+    if (!content) return content;
 
+    // Convert inline math to display math
+    content = content.replace(/\\\((.+?)\\\)/gs, '\\[$1\\]');
+
+    // Add spacing around display math
+    content = content.replace(/([^>\n])\\\[/g, '$1<br>\\[');
+    content = content.replace(/\\\]([^<\n])/g, '\\]<br>$1');
+
+    return content;
+           }
     /* ===============================
        FETCH NOTES
     ================================ */
