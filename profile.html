@@ -47,7 +47,7 @@
     <!-- Profile Info -->
     <div class="profile-header">
         <div id="profilePhoto" class="profile-initials">--</div>
-        <div class="profile-info">
+        <div class="profile-info"><br><br>
             <div><strong>Full Name:</strong> <span id="fullName">Loading...</span></div>
             <div><strong>Email:</strong> <span id="email">Loading...</span></div>
             <div><strong>Phone:</strong> <span id="phone">Loading...</span></div>
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userEmail = localStorage.getItem("user_email");
 
     if (!authToken || !userEmail) {
-        window.location.href = "login.html"; // force login
+        window.location.href = "login.html";
         return;
     }
 
@@ -91,41 +91,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
-    // Helper to get initials
     function getInitials(name) {
         if (!name) return "--";
         const parts = name.trim().split(" ");
-        const initials = parts.map(p => p[0]).slice(0,2).join("");
-        return initials.toUpperCase();
+        return parts.map(p => p[0]).slice(0,2).join("").toUpperCase();
     }
 
-    // Fetch user profile info
+    // Fetch user profile
     async function fetchProfile() {
         try {
-            const res = await fetch("/api/user/profile", {
-                headers: { "Authorization": `Bearer ${authToken}` }
-            });
+            const res = await fetch(`/.netlify/functions/get-user-profile?email=${userEmail}`);
             if (!res.ok) throw new Error("Failed to fetch profile");
             const data = await res.json();
 
-            fullNameEl.textContent = data.fullName || "N/A";
+            fullNameEl.textContent = data.name || "N/A";
             emailEl.textContent = data.email || "N/A";
             phoneEl.textContent = data.phone || "N/A";
 
-            // Set initials avatar
-            profilePhoto.textContent = getInitials(data.fullName);
-
+            profilePhoto.textContent = getInitials(data.name);
         } catch(err) {
             showToast("Failed to load profile", false);
         }
     }
 
-    // Fetch lesson plans for this user
+    // Fetch lesson plans
     async function fetchLessonPlans() {
         try {
-            const res = await fetch("/api/user/lesson-plans", {
-                headers: { "Authorization": `Bearer ${authToken}` }
-            });
+            const res = await fetch(`/.netlify/functions/get-user-plans?email=${userEmail}`);
             if (!res.ok) throw new Error("Failed to fetch lesson plans");
             const plans = await res.json();
 
@@ -158,9 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Reuse plan
     window.reusePlan = async (id) => {
         try {
-            const res = await fetch(`/api/user/lesson-plans/${id}`, {
-                headers: { "Authorization": `Bearer ${authToken}` }
-            });
+            const res = await fetch(`/.netlify/functions/get-single-plan?id=${id}`);
             if (!res.ok) throw new Error("Plan not found");
             const plan = await res.json();
 
@@ -176,12 +166,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Copy plan HTML to clipboard
+    // Copy plan
     window.copyPlan = async (id) => {
         try {
-            const res = await fetch(`/api/user/lesson-plans/${id}`, {
-                headers: { "Authorization": `Bearer ${authToken}` }
-            });
+            const res = await fetch(`/.netlify/functions/get-single-plan?id=${id}`);
             if (!res.ok) throw new Error("Plan not found");
             const plan = await res.json();
             await navigator.clipboard.writeText(plan.lesson_content || plan.html || "");
@@ -194,9 +182,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Delete plan
     window.deletePlan = async (id, btn) => {
         try {
-            const res = await fetch(`/api/user/lesson-plans/${id}`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${authToken}` }
+            const res = await fetch(`/.netlify/functions/delete-plan?id=${id}`, {
+                method: "DELETE"
             });
             if (!res.ok) throw new Error("Failed to delete plan");
             btn.closest(".plan-card").remove();
@@ -221,4 +208,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 </script>
 
 </body>
-  </html>
+          </html>
