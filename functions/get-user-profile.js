@@ -1,32 +1,35 @@
-import { query } from './db.js'; // your db helper
-import jwt from 'jsonwebtoken';
+import pkg from "pg";
+const { Pool } = pkg;
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
 export async function handler(event) {
   try {
-    const authHeader = event.headers.authorization;
-    if (!authHeader) return { statusCode: 401, body: 'Unauthorized' };
+    const email = event.queryStringParameters?.email;
 
-    const token = authHeader.split(' ')[1];
-    let payload;
-    try {
-      payload = jwt.verify(token, process.env.JWT_SECRET);
-    } catch {
-      return { statusCode: 401, body: 'Invalid token' };
+    if (!email) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Email required" }) };
     }
 
-    const res = await query(
-      'SELECT name, email, phone FROM users WHERE email = $1',
-      [payload.email]
+    const result = await pool.query(
+      `SELECT name, email, phone, balance FROM users WHERE email = $1`,
+      [email]
     );
 
-    if (!res.rows.length) return { statusCode: 404, body: 'User not found' };
+    if (result.rows.length === 0) {
+      return { statusCode: 404, body: JSON.stringify({ error: "User not found" }) };
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify(res.rows[0])
+      body: JSON.stringify(result.rows[0])
     };
 
   } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: 'Server error' };
+    console.error("Profile error:", err);
+    return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
   }
 }
