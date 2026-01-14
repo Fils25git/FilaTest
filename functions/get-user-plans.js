@@ -1,5 +1,4 @@
 import { query } from './db.js';
-
 export async function handler(event) {
   try {
     const email = event.queryStringParameters.email;
