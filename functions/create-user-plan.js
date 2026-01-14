@@ -27,7 +27,7 @@ exports.handler = async function(event) {
 
         // Insert the lesson plan into your table
         const query = `
-            INSERT INTO user_plans (email, lesson_title, lesson_content, language, created_at)
+            INSERT INTO user_lesson_plans (email, lesson_title, lesson_content, language, created_at)
             VALUES ($1, $2, $3, $4, NOW())
             RETURNING id
         `;
