@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila Assistant - CBC Lesson Plan Generator</title>
+    <meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/../logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+    
+    <link rel="stylesheet" href="plans.css">
+
+    <style>
+        Responsive footer */
+  footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    width: 100%;
+  }
+  footer a {
+    color: #fff;
+    text-decoration: underline;
+    margin: 0 5px;
+      }
+        body{
+            background: linear-gradient(135deg, #6dd5fa, #2980b9);
+        }
+      .floating-message {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.6s ease;
+        max-width: 300px;
+        line-height: 1.6;
+      }
+        #lessonPlanContent[contenteditable="true"] {
+    border: 2px dashed #007bff;
+    background: #f8fbff;
+    padding: 15px;
+        }
+
+      @keyframes slideIn {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .floating-message a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <img src="../logo.png">
+        <h2>Fila Assistant</h2>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
+        <form id="lessonForm">
+            <div class="form-grid">
+
+                <!-- ✅ Language selection -->
+                <div class="form-group">
+                    <label class="required">Language</label>
+                    <select id="language" required>
+                        <option value="">Select Language</option>
+                        <option value="english">English</option>
+                        <option value="kinyarwanda">Kinyarwanda</option>
+                        <option value="kiswahili">Kiswahili</option>
+                        <option value="french">French</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">School Name</label>
+                    <input type="text" id="schoolName" placeholder="e.g:,TTC BICUMBI"  required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Teacher's Name</label>
+                    <input type="text" id="teacherName" placeholder="e.g:, IRATURINZE Fils Lambert" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Term</label>
+                    <select id="term" required>
+                        <option value="">Select Term</option>
+                        <option value="I">Term I</option>
+                        <option value="II">Term II</option>
+                        <option value="III">Term III</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Subject</label>
+                    <input type="text" id="subject" placeholder="e.g:, English" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Class</label>
+                    <input type="text" id="class" placeholder="e.g:, P6, S2" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Unit No</label>
+                    <input type="number" id="unitNo" placeholder="e.g:, 4" required>              </div>
+
+                <div class="form-group">
+                    <label class="required">Lesson No / Total</label>
+                    <div class="double-input">
+                        <input type="number" id="lessonNo" placeholder="e.g:, 4" required>
+                        <input type="number" id="totalLessons" placeholder="e.g:, 10" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Duration (minutes)</label>
+                    <input type="number" id="duration" placeholder=" e.g:, 40" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Class Size</label>
+                    <input type="number" id="classSize" placeholder="e.g:, 35" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="required">Unit Title</label>
+                    <input type="text" id="unitTitle" placeholder="e.g:, Leisure and Sports" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="required">Lesson Title</label>
+                    <input type="text" id="lessonTitle" placeholder="e.g:, Describing what you like doing" required>
+                </div>
+
+                <!-- ✅ Teaching materials optional -->
+                <div class="form-group full-width">
+                    <label class="optional">Teaching Materials (Optional)</label>
+                    <input type="text" id="teachingMaterials" placeholder="E.g., Flashcards, Worksheets">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="optional">Special Educational Needs (If available)</label>
+                    <input type="text" id="specialNeeds" placeholder="e.g:, 3 slow learners">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="optional">References (Optional)</label>
+                    <input type="text" id="references" placeholder="e.g:, Mathematics students book for S4">
+                </div>
+
+            </div>
+
+            <button type="submit" class="generate-btn">Fetch Lesson Plan</button>
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+    </div>
+
+    <!-- Result -->
+    <div id="resultContainer" class="result-container">
+        <div class="download-buttons">
+            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
+            <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+    <button id="editBtn" Class="download-btn">✏️ Edit</button>
+    <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
+            
+        </div>
+        <div id="lessonPlanContent" class="lesson-plan"></div>
+        
+    </div>
+</div>
+
+<div id="floatingMessage" class="floating-message"></div>
+    <footer>
+  &copy; 2026 Fila Assistant | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a>
+    </footer>
+
+<!-- Netlify Identity -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+<script>
+// ✅ JWT-based login check
+const token = localStorage.getItem("auth_token");
+const userEmail = localStorage.getItem("user_email"); // optional, for API calls
+
+if (!token) {
+    // User not logged in → redirect to login page
+    window.location.href = "../login.html";
+} else {
+    console.log("User is logged in:", userEmail);
+}
+
+// Floating message
+function showFloatingMessage(msg) {
+    const box = document.getElementById("floatingMessage");
+    box.innerHTML = msg;
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 10000);
+}
+
+// Plan folders per language
+const planFolders = {
+    english: "proposals",
+    kinyarwanda: "kinyarwanda_plans",
+    kiswahili: "kiswahili_plans",
+    french: "french_plans"
+};
+
+function getRandomPlanFile(language) {
+    const folder = planFolders[language] || "proposals";
+    const index = Math.floor(Math.random() * 10) + 1;
+    return `${folder}/plan${index}.html`;
+}
+
+/* ✅ MUST BE GLOBAL (THIS WAS THE BUG FIX) */
+function getLanguageDefaults(language, subject, classLevel) {
+    return {
+        specialNeeds: {
+            kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
+            kiswahili: "Hakuna mwanafunzi yeyote mwenye hitaji maalum.",
+            french: "Il n'y a aucun élève ayant des besoins spéciaux.",
+            english: "There is no learner with special educational needs."
+        },
+        teachingMaterials: {
+            kinyarwanda: `Amashusho ari mu gitabo cy'umunyeshuri, ${subject} ${classLevel}, Igitabo cy'umwarimu (Inyoborabarezi).`,
+            kiswahili: `${classLevel} kitabu cha kiswahili kwa shule za Rwanda, Kitabu cha mwanafunzi na Kitabu cha mwalimu, Picha kutoka kwa kitabu cha mwanafunzi.`,
+            french: `${classLevel} livre de français, Livre de l'élève et guide de l'enseignant, Images tirées du livre de l'élève.`,
+            english: `${subject} textbook, learner's book, teacher's guide, charts and flashcards.`
+        },
+        references: {
+            kinyarwanda: `${subject} igitabo cy'umunyeshuri ${classLevel} n'Inyoborabarezi.`,
+            kiswahili: `${subject} kitabu cha mwanafunzi ${classLevel} na Kitabu cha mwalimu.`,
+            french: `${classLevel} livre de ${subject}, Livre de l'élève et guide de l'enseignant.`,
+            english: `${subject} learner’s book, teacher’s guide, REB curriculum guide.`
+        }
+    };
+}
+
+document.getElementById('lessonForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.querySelector(".generate-btn");
+    btn.disabled = true;
+    btn.textContent = "Fetching...";
+
+    try {
+        const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
+        const data = await res.json();
+
+        if (data.balance <= 0) {
+            showFloatingMessage(`
+              ❌ No lesson plans available.<br><br>
+              👉 <a href="../payment.html">Buy lesson plans</a><br>
+              👉 <a href="../balance.html">View balance</a>
+            `);
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
+        const deductRes = await fetch('/.netlify/functions/use-lesson-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail })
+        });
+
+        const deductData = await deductRes.json();
+
+        if (!deductRes.ok || deductData.success !== true) {
+            showFloatingMessage("❌ Lesson plan balance exhausted.");
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
+        generateLessonPlan();
+
+    } catch (err) {
+        console.error(err);
+        showFloatingMessage("❌ Network error. Please try again.");
+        btn.disabled = false;
+        btn.textContent = "Fetch Lesson Plan";
+    }
+});
+
+// ... rest of  script stays exactly the same ...
+    function generateLessonPlan() {
+    const language = document.getElementById('language').value || 'english';
+    const subjectVal = subject.value;
+    const classVal = document.getElementById('class').value;
+    const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
+    const data = {
+        schoolName: schoolName.value,
+        teacherName: teacherName.value,
+        term: term.value,
+        date: date.value,
+        subject: subjectVal,
+        class: classVal,
+        unitNo: unitNo.value,
+        lessonNo: lessonNo.value,
+        totalLessons: totalLessons.value,
+        duration: duration.value,
+        classSize: classSize.value,
+        unitTitle: unitTitle.value,
+        lessonTitle: lessonTitle.value,
+        teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
+        specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
+        references: references.value || defaults.references[language]
+    };
+
+    fetch(getRandomPlanFile(language))
+        .then(r => r.text())
+        .then(tpl => {
+            for (const k in data) {
+                tpl = tpl
+                    .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
+                    .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
+            }
+            lessonPlanContent.innerHTML = tpl;
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(() => {
+            errorMessage.textContent = "❌ Failed to fetch lesson plan.";
+        });
+}
+
+const editBtn = document.getElementById('editBtn');
+const saveBtn = document.getElementById('saveBtn');
+
+editBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = true;
+    lessonPlanContent.focus();
+    editBtn.disabled = true;
+    saveBtn.disabled = false;
+});
+
+saveBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = false;
+    editBtn.disabled = false;
+    saveBtn.disabled = true;
+    showFloatingMessage("Lesson plan saved successfully! ✅");
+});
+
+function copyToWord() {
+    const range = document.createRange();
+    range.selectNode(lessonPlanContent);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    showFloatingMessage("Lesson plan copied to clipboard.");
+        }
+</script>
+            
+</body>
+  </html>
