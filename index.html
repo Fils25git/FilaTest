@@ -75,6 +75,26 @@ main { max-width:1100px; margin:auto; padding:20px; }
 footer {
     margin-top:40px; padding:16px; text-align:center; font-size:13px; color:#6b7280;
 }
+    #siteUpdateNotice {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2563eb; /* blue notice */
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#siteUpdateNotice.show {
+    opacity: 1;
+    }
 
 /* MOBILE */
 @media(max-width:600px){ .profile-icon{display:block;} }
@@ -90,6 +110,17 @@ footer {
     </div>
     <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('profile.html')" title="My Profile"></i>
 </header>
+    <div id="siteUpdateNotice" class="toast">
+    <span>Sorry! We have updated the site to make it more accessible.</span>
+    <button id="closeNotice" style="
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+    ">&times;</button>
+    </div>
 
 <main>
 
@@ -184,6 +215,22 @@ function logout(){
     localStorage.removeItem('lastPage');
     window.location.href = "index.html";
 }
+    // Show site update notice once per session
+const notice = document.getElementById("siteUpdateNotice");
+const closeBtn = document.getElementById("closeNotice");
+
+// Check if user has dismissed notice before
+if (!sessionStorage.getItem("siteUpdateDismissed")) {
+    setTimeout(() => {
+        notice.classList.add("show");
+    }, 500); // small delay for smooth appearance
+}
+
+// Close button click
+closeBtn.addEventListener("click", () => {
+    notice.classList.remove("show");
+    sessionStorage.setItem("siteUpdateDismissed", "true");
+});
 </script>
 
 </body>
