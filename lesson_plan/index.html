@@ -331,8 +331,9 @@
             .then(template => {
 
                 for (const key in data) {
-                    template = template.replace(
-                        new RegExp(`{{\\s*${key}\\s*}}`, "g"),
+                    template = template
+  .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key])
+  .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key]
                         data[key]
                     );
                 }
