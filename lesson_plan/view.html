@@ -7,8 +7,9 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<!-- jsPDF CDN for PDF download -->
+<!-- jsPDF + html2canvas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 body {
@@ -79,7 +80,7 @@ header button {
     overflow-x:auto;
 }
 
-/* TABLE STYLING */
+/* Table styling */
 #lessonContent table {
     width: 100%;
     border-collapse: collapse;
@@ -156,6 +157,7 @@ function goBack(){
     window.location.href = "profile.html";
 }
 
+// Load lesson plan
 async function loadLesson(){
     try{
         const planId = localStorage.getItem("fetched_plan_id");
@@ -166,7 +168,6 @@ async function loadLesson(){
 
         const plan = await res.json();
 
-        // Render as HTML for tables and formatting
         lessonContent.innerHTML = plan.lesson_content || "<p>No content available</p>";
 
         // Store lesson title for PDF
@@ -179,6 +180,7 @@ async function loadLesson(){
     }
 }
 
+// Copy lesson
 async function copyLesson(){
     try{
         await navigator.clipboard.writeText(lessonContent.innerText);
@@ -188,20 +190,27 @@ async function copyLesson(){
     }
 }
 
+// Download PDF with table formatting
 async function downloadPDF(){
     try{
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const doc = new jsPDF("p","pt","a4");
 
-        const text = lessonContent.innerText;
-        const lines = doc.splitTextToSize(text, 180);
-        doc.text(lines, 15, 20);
+        // Use html2canvas to render the lesson content
+        const canvas = await html2canvas(lessonContent, { scale:2 });
+        const imgData = canvas.toDataURL("image/png");
 
+        // Fit image to A4
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
         const title = localStorage.getItem("lesson_title") || "lesson_plan";
-        doc.save(title+".pdf");
+        doc.save(title + ".pdf");
 
         showToast("Lesson downloaded as PDF!");
-    }catch{
+    }catch(err){
+        console.error(err);
         showToast("Failed to download PDF", false);
     }
 }
