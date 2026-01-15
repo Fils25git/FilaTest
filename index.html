@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
-/* ===== RESET ===== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -19,16 +18,21 @@
 body {
     background: #f4f6f8;
     color: #333;
+    padding-top: 72px; /* space for fixed header */
 }
 
 /* ===== HEADER ===== */
 .header {
-    background: #ffffff;
-    padding: 16px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #fff;
+    padding: 14px 16px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    z-index: 1000;
 }
 
 .brand {
@@ -38,48 +42,59 @@ body {
 }
 
 .brand img {
-    width: 42px;
-    height: 42px;
+    width: 40px;
 }
 
 .brand h1 {
-    font-size: 20px;
-    color: #1f2937;
+    font-size: 18px;
 }
 
-/* ===== AUTH BUTTONS ===== */
-.auth-buttons button {
-    margin-left: 8px;
+/* ===== PROFILE ICON ===== */
+.profile-icon {
+    font-size: 22px;
+    color: #4f46e5;
+    cursor: pointer;
+    display: none;
+}
+
+/* ===== MAIN ===== */
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ===== AUTH BAR ===== */
+.auth-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.auth-bar button {
     padding: 8px 14px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .login-btn {
     background: #2563eb;
-    color: white;
+    color: #fff;
 }
 
 .signup-btn {
     background: #22c55e;
-    color: white;
+    color: #fff;
 }
 
 .logout-btn {
     background: #ef4444;
-    color: white;
-}
-
-/* ===== MAIN ===== */
-main {
-    padding: 20px;
-    max-width: 1100px;
-    margin: auto;
+    color: #fff;
 }
 
 /* ===== GRID ===== */
@@ -91,32 +106,27 @@ main {
 
 /* ===== CARD ===== */
 .card {
-    background: white;
+    background: #fff;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
     text-align: center;
+    cursor: pointer;
+    transition: .2s;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 .card i {
     font-size: 36px;
-    margin-bottom: 12px;
     color: #4f46e5;
+    margin-bottom: 10px;
 }
 
 .card h3 {
     font-size: 16px;
-    margin-bottom: 6px;
 }
 
 .card p {
@@ -124,10 +134,10 @@ main {
     color: #6b7280;
 }
 
-/* ===== TOAST MESSAGE ===== */
+/* ===== TOAST ===== */
 .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     background: #1f2937;
@@ -136,22 +146,19 @@ main {
     border-radius: 8px;
     font-size: 14px;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 9999;
+    transition: .3s;
+    z-index: 2000;
 }
 
 .toast.show {
     opacity: 1;
-    transform: translateX(-50%) translateY(-10px);
 }
 
-/* ===== FOOTER ===== */
-footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 13px;
-    color: #6b7280;
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+    .profile-icon {
+        display: block;
+    }
 }
 </style>
 </head>
@@ -161,120 +168,101 @@ footer {
 <!-- HEADER -->
 <header class="header">
     <div class="brand">
-        <img src="logo.png" alt="Fila Assistant Logo">
+        <img src="logo.png">
         <h1>Fila Assistant</h1>
     </div>
-
-    <div class="auth-buttons" id="authButtons"></div>
+    <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('profile.html')"></i>
 </header>
 
-<!-- MAIN -->
 <main>
+
+    <!-- AUTH BUTTONS (SCROLLABLE AREA) -->
+    <div class="auth-bar" id="authBar"></div>
+
+    <!-- CARDS -->
     <div class="grid">
 
         <div class="card" onclick="go('app.html')">
             <i class="fas fa-book-open"></i>
             <h3>Fetch Notes</h3>
-            <p>Access lesson and unit notes</p>
+            <p>Access lesson notes</p>
         </div>
 
         <div class="card" onclick="go('lesson_plan/index.html')">
             <i class="fas fa-file-alt"></i>
             <h3>Generate Lesson Plan</h3>
-            <p>Create structured lesson plans</p>
-        </div>
-
-        <div class="card" onclick="go('profile.html')">
-            <i class="fas fa-user-circle"></i>
-            <h3>My Profile</h3>
-            <p>View and manage your account</p>
         </div>
 
         <div class="card" onclick="go('balance.html')">
             <i class="fas fa-wallet"></i>
             <h3>My Balance</h3>
-            <p>Check credits and usage</p>
         </div>
 
         <div class="card" onclick="go('payment.html')">
             <i class="fas fa-shopping-cart"></i>
             <h3>Buy Lesson Plans</h3>
-            <p>Purchase premium resources</p>
+        </div>
+
+        <div class="card" onclick="window.location.href='https://fleduportal.netlify.app/userselection.html'">
+            <i class="fas fa-download"></i>
+            <h3>Get Downloadable Resources</h3>
         </div>
 
     </div>
+
 </main>
 
-<footer>
-    © 2026 Fila Assistant • Smart Working for teachers.
-</footer>
-
-<!-- TOAST -->
 <div id="toast" class="toast">Please log in to access this feature</div>
 
 <script>
-/* ===== AUTH STATE ===== */
-const authButtons = document.getElementById("authButtons");
+const authBar = document.getElementById("authBar");
+const profileIcon = document.getElementById("profileIcon");
 const toast = document.getElementById("toast");
 const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-/* Floating message */
-function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2500);
-}
-
-/* Navigation control */
-function go(page) {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-    if (page === "app.html") {
-        localStorage.setItem("lastPage", page);
-        window.location.href = page;
-        return;
-    }
-
-    if (!loggedIn) {
-        showToast("Please log in to access this feature");
-        setTimeout(() => {
-            window.location.href = "login.html";
-        }, 1500);
-        return;
-    }
-
-    localStorage.setItem("lastPage", page);
-    window.location.href = page;
-}
-
-/* Render auth buttons */
+/* Auth UI */
 if (isLoggedIn) {
-    authButtons.innerHTML = `
+    authBar.innerHTML = `
         <button class="logout-btn" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     `;
+    profileIcon.style.display = "block";
 } else {
-    authButtons.innerHTML = `
+    authBar.innerHTML = `
         <button class="login-btn" onclick="go('login.html')">
             <i class="fas fa-sign-in-alt"></i> Login
         </button>
         <button class="signup-btn" onclick="go('create.html')">
-            <i class="fas fa-user-plus"></i>Signup
+            <i class="fas fa-user-plus"></i> Create Account
         </button>
     `;
 }
 
+/* Toast */
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+/* Navigation guard */
+function go(page) {
+    if (page !== "app.html" && !isLoggedIn) {
+        showToast("Please log in to access this feature");
+        setTimeout(() => location.href = "login.html", 1200);
+        return;
+    }
+    localStorage.setItem("lastPage", page);
+    location.href = page;
+}
+
 /* Logout */
 function logout() {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("lastPage");
-    window.location.reload();
+    localStorage.clear();
+    location.reload();
 }
 </script>
 
 </body>
-  </html>
+            </html>
