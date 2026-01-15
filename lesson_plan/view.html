@@ -3,40 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fila Assistant - View Lesson</title>
+<title>View Lesson Plan</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- jsPDF CDN for PDF download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body { font-family: sans-serif; margin:0; padding:0; background:#f4f6f8; }
-header { padding:10px 20px; background:#fff; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); position:sticky; top:0; z-index:100; }
-header h1 { font-size:1.5rem; }
-.container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-.buttons { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
-.buttons button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:5px; transition:0.2s; }
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f6f8;
+}
+
+header {
+    padding: 10px 20px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 { font-size: 1.5rem; margin:0; }
+header button {
+    background: #9e9e9e;
+    color: #fff;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.buttons button {
+    padding: 8px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:.9rem;
+}
+
 .btn-copy { background:#ff9800; color:#fff; }
 .btn-pdf { background:#4caf50; color:#fff; }
-.btn-edit { background:#2196f3; color:#fff; }
-.btn-back { background:#9e9e9e; color:#fff; }
-.buttons button:hover { opacity:0.85; }
-#lessonContent { border:1px solid #ddd; border-radius:8px; padding:15px; min-height:300px; background:#fafafa; overflow-x:auto; white-space:pre-wrap; }
-.toast { position:fixed; top:20px; right:20px; background:#4caf50; color:#fff; padding:10px 20px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.2); opacity:0; transition:0.3s; z-index:9999; }
+
+#lessonContent {
+    min-height: 300px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding:15px;
+    background:#fafafa;
+    overflow-x:auto;
+}
+
+/* TABLE STYLING */
+#lessonContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+#lessonContent th, #lessonContent td {
+    border: 1px solid #333;
+    padding: 8px;
+    text-align: left;
+}
+
+#lessonContent th {
+    background: #4caf50;
+    color: #fff;
+}
+
+#lessonContent tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius:6px;
+    opacity:0;
+    transition:.3s;
+    z-index:999;
+}
+
 .toast.show { opacity:1; }
-@media(max-width:600px){header h1{font-size:1.2rem}.buttons{flex-direction:column}}
+
+@media(max-width:600px){
+    header h1 { font-size:1.2rem; }
+    .buttons { flex-direction: column; }
+}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body>
 
 <header>
-<h1>View Lesson Plan</h1>
-<button class="btn-back" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+    <h1>View Lesson Plan</h1>
+    <button onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
 </header>
 
 <div class="container">
     <div class="buttons">
         <button class="btn-copy" onclick="copyLesson()"><i class="fas fa-copy"></i> Copy</button>
         <button class="btn-pdf" onclick="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
-        <button class="btn-edit" onclick="editLesson()"><i class="fas fa-edit"></i> Edit</button>
     </div>
+
     <div id="lessonContent">Loading lesson...</div>
 </div>
 
@@ -46,37 +145,15 @@ header h1 { font-size:1.5rem; }
 const lessonContent = document.getElementById("lessonContent");
 const toast = document.getElementById("toast");
 
-function showToast(message, success = true){
+function showToast(message, success=true){
     toast.textContent = message;
     toast.style.background = success ? "#4caf50" : "#f44336";
     toast.classList.add("show");
     setTimeout(()=>toast.classList.remove("show"),3000);
 }
 
-function goBack(){ window.location.href="profile.html"; }
-
-async function copyLesson(){
-    try{ await navigator.clipboard.writeText(lessonContent.innerText); showToast("Lesson copied to clipboard!"); }
-    catch(err){ showToast("Failed to copy lesson", false); }
-}
-
-async function downloadPDF(){
-    try{
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const text = lessonContent.innerText;
-        const lines = doc.splitTextToSize(text, 180);
-        doc.text(lines,15,20);
-        const lessonTitle = localStorage.getItem("lesson_title") || "lesson_plan";
-        doc.save(lessonTitle + ".pdf");
-        showToast("Lesson downloaded as PDF!");
-    }catch(err){ console.error(err); showToast("Failed to download PDF", false); }
-}
-
-function editLesson(){
-    const planId = localStorage.getItem("fetched_plan_id");
-    if(!planId){ showToast("No lesson selected", false); return; }
-    window.location.href = "edit.html";
+function goBack(){
+    window.location.href = "profile.html";
 }
 
 async function loadLesson(){
@@ -88,12 +165,44 @@ async function loadLesson(){
         if(!res.ok) throw new Error("Failed to fetch lesson plan");
 
         const plan = await res.json();
-        lessonContent.innerHTML = plan.lesson_text || plan.lesson_content || "No content available";
+
+        // Render as HTML for tables and formatting
+        lessonContent.innerHTML = plan.lesson_content || "<p>No content available</p>";
+
+        // Store lesson title for PDF
         localStorage.setItem("lesson_title", plan.lesson_title || "lesson_plan");
+
     }catch(err){
-        lessonContent.innerText="Failed to load lesson.";
-        showToast(err.message,false);
+        lessonContent.innerText = "Failed to load lesson.";
+        showToast(err.message, false);
         console.error(err);
+    }
+}
+
+async function copyLesson(){
+    try{
+        await navigator.clipboard.writeText(lessonContent.innerText);
+        showToast("Lesson copied to clipboard!");
+    }catch{
+        showToast("Failed to copy lesson", false);
+    }
+}
+
+async function downloadPDF(){
+    try{
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const text = lessonContent.innerText;
+        const lines = doc.splitTextToSize(text, 180);
+        doc.text(lines, 15, 20);
+
+        const title = localStorage.getItem("lesson_title") || "lesson_plan";
+        doc.save(title+".pdf");
+
+        showToast("Lesson downloaded as PDF!");
+    }catch{
+        showToast("Failed to download PDF", false);
     }
 }
 
@@ -101,4 +210,4 @@ document.addEventListener("DOMContentLoaded", loadLesson);
 </script>
 
 </body>
-    </html>
+</html>
