@@ -11,11 +11,18 @@ export async function handler(event) {
     const email = event.queryStringParameters?.email;
 
     if (!email) {
-      return { statusCode: 400, body: JSON.stringify([]) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify([])
+      };
     }
 
     const result = await pool.query(
-      `SELECT id, lesson_title, lesson_content, language, created_at
+      `SELECT 
+          id,
+          lesson_title,
+          language,
+          created_at
        FROM user_lesson_plans
        WHERE email = $1
        ORDER BY created_at DESC`,
@@ -29,6 +36,9 @@ export async function handler(event) {
 
   } catch (err) {
     console.error("Error fetching user plans:", err);
-    return { statusCode: 500, body: JSON.stringify([]) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify([])
+    };
   }
-                           }
+  }
