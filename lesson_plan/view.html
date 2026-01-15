@@ -3,216 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>View Lesson Plan</title>
+<title>Fila Assistant – View Lesson Plan</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<!-- jsPDF + html2canvas -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
-body {
-    font-family: sans-serif;
+/*  full CSS here (from your previous message) */
+/* ... all the lesson plan CSS you provided ... */
+    /* ==========================
+   GENERAL RESET
+========================== */
+* {
     margin: 0;
     padding: 0;
-    background: #f4f6f8;
+    box-sizing: border-box;
 }
 
-header {
-    padding: 10px 20px;
-    background: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: sticky;
+/* ==========================
+   BODY
+========================== */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-top: 70px; /* reserve space for fixed header */
+    overflow-x: hidden;
+}
+
+/* ==========================
+   HEADER
+========================== */
+.header {
+    position: fixed;
     top: 0;
-    z-index: 100;
-}
-
-header h1 { font-size: 1.5rem; margin:0; }
-header button {
-    background: #9e9e9e;
-    color: #fff;
-    border:none;
-    padding:8px 12px;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-.container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.buttons {
+    left: 0;
+    width: 100%;
+    background: white;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.header img {
+    height: 40px;
+    margin-right: 15px;
+}
+
+.header h2 {
+    color: default;
+    font-size: 1.2em;
+}
+
+/* ==========================
+   CONTAINER
+========================== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* ==========================
+   FORM CONTAINER
+========================== */
+.form-container {
+    background: #f7f7f7; /* lighter gray for form */
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow-x: auto; /* prevent horizontal scroll */
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
     margin-bottom: 20px;
 }
 
-.buttons button {
-    padding: 8px 12px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:5px;
-    font-size:.9rem;
+.form-group {
+    display: flex;
+    flex-direction: column;
 }
 
-.btn-copy { background:#ff9800; color:#fff; }
-.btn-pdf { background:#4caf50; color:#fff; }
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
 
-#lessonContent {
-    min-height: 300px;
-    border: 1px solid #ddd;
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+label.required::after {
+    content: " *";
+    color: red;
+}
+
+label.optional {
+    color: #2563eb;
+}
+
+input, select, textarea {
+    padding: 8px;
+    border: 2px solid #ddd;
     border-radius: 8px;
-    padding:15px;
-    background:#fafafa;
-    overflow-x:auto;
+    font-size: 0.9em;
+    transition: border-color 0.3s;
+}
+/* Form Container */
+.form-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+
+    max-width: 100%;     
+    overflow-x: hidden;  
+    box-sizing: border-box; 
 }
 
-/* Table styling */
-#lessonContent table {
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Form Groups and Inputs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+input, select, textarea {
+    width: 100%;         
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95em;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Double-input fields */
+.double-input {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;  
+   flex-direction: row;
+}
+
+.double-input input {
+   width: 48%
+}
+
+/* Result Container / Lesson Plan */
+.result-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow-x: auto; /* allow scroll if table is still too wide */
+    max-width: 100%;  
+    box-sizing: border-box;
+}
+
+.lesson-plan {
+    font-size: 10pt;
+    line-height: 1.4;
+    width: 100%;       /* never exceed container width */
+    overflow-x: auto;  
+}
+
+.lesson-plan table {
+    width: 100%;       /* responsive table */
+    border-collapse: collapse;
+    margin-bottom: 5px;
+}
+
+.lesson-plan td, .lesson-plan th {
+    border: 1px solid black;
+    padding: 5px;
+    vertical-align: top;
+    word-break: break-word; /* prevent overflow text */
+}
+
+/* Responsive adjustments for small devices */
+@media (max-width: 500px) {
+    .form-grid {
+        grid-template-columns: 1fr; 
+    }
+
+    .double-input {
+        flex-direction: row;
+    }
+       }
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.double-input {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;  
+}
+
+
+/* ==========================
+   BUTTONS
+========================== */
+.generate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 15px auto;
+    transition: transform 0.2s;
+}
+
+.generate-btn:hover {
+    transform: scale(1.05);
+}
+
+.generate-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.85em;
+}
+
+/* ==========================
+   RESULT CONTAINER
+========================== */
+.result-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: none;
+    max-width: 100%;
+    overflow-x: auto; /* prevent horizontal scroll */
+}
+
+.result-container.show {
+    display: block;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.download-btn {
+    padding: 8px 13px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+   background: #10b981;
+    transition: transform 0.2s;
+}
+
+.download-btn:hover {
+    transform: scale(1.05);
+}
+
+.btn-word {
+    background: #10b981;
+    color: white;
+}
+
+.btn-pdf {
+    background: #8b5cf6;
+    color: white;
+}
+
+/* ==========================
+   LESSON PLAN
+========================== */
+.lesson-plan {
+    font-size: 10pt;
+    line-height: 1.4;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.lesson-plan table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
+    table-layout: fixed; /* ensures columns don't exceed width */
 }
 
-#lessonContent th, #lessonContent td {
-    border: 1px solid #333;
-    padding: 8px;
-    text-align: left;
+.lesson-plan td, 
+.lesson-plan th {
+    border: 1px solid black;
+    padding: 5px;
+    vertical-align: top;
+    word-wrap: break-word;
 }
 
-#lessonContent th {
-    background: #4caf50;
-    color: #fff;
+.lesson-plan .bold {
+    font-weight: bold;
 }
 
-#lessonContent tr:nth-child(even) {
-    background: #f2f2f2;
+.lesson-plan ul {
+    margin: 5px 0;
+    padding-left: 20px;
 }
 
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4caf50;
-    color: #fff;
-    padding: 10px 18px;
-    border-radius:6px;
-    opacity:0;
-    transition:.3s;
-    z-index:999;
+.lesson-plan li {
+    margin: 2px 0;
 }
 
+.text-center {
+    text-align: center;
+}
+
+/* ==========================
+   PRINT STYLING
+========================== */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+    
+    .header, .form-container, .download-buttons {
+        display: none !important;
+    }
+    
+    .result-container {
+        box-shadow: none;
+        padding: 0;
+    }
+    
+    .lesson-plan {
+        font-size: 9pt;
+    }
+    }
+body { font-family: Arial, sans-serif; background: #f4f6f8; padding-top:70px; }
+.header { position: fixed; top:0; left:0; width:100%; background:white; padding:10px 20px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:1000; display:flex; justify-content:space-between; align-items:center;}
+.header h2 { font-size:1.2em; }
+.header button { background:#f44336; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.container { max-width:1200px; margin:0 auto; padding:0 15px; }
+.result-container { background:white; border-radius:15px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.15); overflow-x:auto; }
+.lesson-plan table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.lesson-plan td, .lesson-plan th { border:1px solid black; padding:5px; word-wrap:break-word; vertical-align:top; }
+.download-buttons { display:flex; gap:15px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.download-btn { padding:8px 13px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; color:white; }
+.btn-pdf { background:#8b5cf6; }
+.btn-word { background:#10b981; }
+.toast { position:fixed; top:20px; right:20px; background:#4caf50; color:white; padding:10px 18px; border-radius:6px; opacity:0; transition:.3s; z-index:999; }
 .toast.show { opacity:1; }
-
-@media(max-width:600px){
-    header h1 { font-size:1.2rem; }
-    .buttons { flex-direction: column; }
-}
+@media(max-width:600px){ .header h2{ font-size:1em; } .download-buttons{flex-direction:column; align-items:center;} }
 </style>
-</head>
 
+<!-- Include html2pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</head>
 <body>
 
-<header>
-    <h1>View Lesson Plan</h1>
+<header class="header">
+    <h2>View Lesson Plan</h2>
     <button onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
 </header>
 
 <div class="container">
-    <div class="buttons">
-        <button class="btn-copy" onclick="copyLesson()"><i class="fas fa-copy"></i> Copy</button>
-        <button class="btn-pdf" onclick="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
+    <div class="download-buttons">
+        <button class="download-btn btn-pdf" onclick="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
     </div>
 
-    <div id="lessonContent">Loading lesson...</div>
+    <div class="result-container">
+        <div class="lesson-plan" id="lessonContent">
+            Loading lesson plan…
+        </div>
+    </div>
 </div>
 
-<div id="toast" class="toast"></div>
+<div class="toast" id="toast"></div>
 
 <script>
 const lessonContent = document.getElementById("lessonContent");
 const toast = document.getElementById("toast");
 
-function showToast(message, success=true){
-    toast.textContent = message;
-    toast.style.background = success ? "#4caf50" : "#f44336";
+function showToast(msg, ok=true){
+    toast.textContent = msg;
+    toast.style.background = ok ? "#4caf50" : "#f44336";
     toast.classList.add("show");
     setTimeout(()=>toast.classList.remove("show"),3000);
 }
 
 function goBack(){
-    window.location.href = "profile.html";
+    location.href="profile.html";
 }
 
 // Load lesson plan
 async function loadLesson(){
-    try{
-        const planId = localStorage.getItem("fetched_plan_id");
-        if(!planId) throw new Error("No lesson selected");
+    try {
+        const planId = localStorage.getItem("view_plan_id");
+        if(!planId) throw new Error("No lesson plan selected");
 
         const res = await fetch(`/.netlify/functions/get-single-plan?id=${planId}`);
         if(!res.ok) throw new Error("Failed to fetch lesson plan");
 
         const plan = await res.json();
 
-        lessonContent.innerHTML = plan.lesson_content || "<p>No content available</p>";
+        // If the lesson is saved as text, convert it into table
+        function formatLessonText(text){
+            const lines = text.split("\n").filter(l=>l.trim());
+            if(!lines.length) return "<p>No content available</p>";
+            let html = "<table><tr><th>Section</th><th>Content</th></tr>";
+            lines.forEach(line=>{
+                const [key, ...rest] = line.split(":");
+                if(key && rest.length){
+                    html += `<tr><td>${key.trim()}</td><td>${rest.join(":").trim()}</td></tr>`;
+                }
+            });
+            html += "</table>";
+            return html;
+        }
 
-        // Store lesson title for PDF
-        localStorage.setItem("lesson_title", plan.lesson_title || "lesson_plan");
+        lessonContent.innerHTML = plan.lesson_text 
+            ? formatLessonText(plan.lesson_text) 
+            : plan.lesson_content || "<p>No content available</p>";
 
-    }catch(err){
-        lessonContent.innerText = "Failed to load lesson.";
-        showToast(err.message, false);
+        // Store title for PDF
+        localStorage.setItem("view_lesson_title", plan.lesson_title || "lesson_plan");
+
+    } catch(err){
+        lessonContent.innerHTML = "<p>Failed to load lesson.</p>";
+        showToast(err.message,false);
         console.error(err);
     }
 }
 
-// Copy lesson
-async function copyLesson(){
-    try{
-        await navigator.clipboard.writeText(lessonContent.innerText);
-        showToast("Lesson copied to clipboard!");
-    }catch{
-        showToast("Failed to copy lesson", false);
-    }
-}
-
-// Download PDF with table formatting
-async function downloadPDF(){
-    try{
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF("p","pt","a4");
-
-        // Use html2canvas to render the lesson content
-        const canvas = await html2canvas(lessonContent, { scale:2 });
-        const imgData = canvas.toDataURL("image/png");
-
-        // Fit image to A4
-        const pdfWidth = doc.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-        doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        const title = localStorage.getItem("lesson_title") || "lesson_plan";
-        doc.save(title + ".pdf");
-
-        showToast("Lesson downloaded as PDF!");
-    }catch(err){
-        console.error(err);
-        showToast("Failed to download PDF", false);
-    }
+// Download full lesson as PDF (full content, not just visible)
+function downloadPDF(){
+    const element = document.getElementById("lessonContent");
+    const opt = {
+        margin:       10,
+        filename:     (localStorage.getItem("view_lesson_title")||"lesson_plan") + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, scrollY: -window.scrollY },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+    showToast("Lesson downloaded as PDF!");
 }
 
 document.addEventListener("DOMContentLoaded", loadLesson);
