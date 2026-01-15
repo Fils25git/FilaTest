@@ -18,7 +18,14 @@ export async function handler(event) {
     }
 
     const result = await pool.query(
-      `SELECT id, email, lesson_title, lesson_content, language, created_at
+      `SELECT 
+          id,
+          email,
+          lesson_title,
+          lesson_content, -- RAW HTML
+          lesson_text,    -- CLEAN TEXT
+          language,
+          created_at
        FROM user_lesson_plans
        WHERE id = $1`,
       [id]
@@ -43,4 +50,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: "Server error" })
     };
   }
-      }
+  }
