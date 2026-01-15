@@ -33,12 +33,12 @@ main { max-width:1100px; margin:auto; padding:20px; }
 
 /* AUTH BAR */
 .auth-bar {
-    display:flex; gap:12px; margin-bottom:30px; flex-wrap:wrap; margin-right:15%;
+    display:flex; gap:12px; margin-bottom:40px; flex-wrap:wrap;
 }
 .auth-bar button { 
     position:fixed;
     padding:8px 14px; border:none; border-radius:6px;
-    cursor:pointer; font-size:14px; display:flex; align-items:center; gap:12px;
+    cursor:pointer; font-size:14px; display:flex; align-items:center; gap:8px;
 }
 .login-btn { background:#2563eb; color:#fff; }
 .signup-btn { background:#22c55e; color:#fff; }
@@ -143,7 +143,7 @@ if (isLoggedIn){
 }else{
     authBar.innerHTML = `
         <button class="login-btn" onclick="go('login.html')"><i class="fas fa-sign-in-alt"></i> Login</button>
-        <button class="signup-btn" onclick="go('create.html')"><i class="fas fa-user-plus"></i> Create Account</button>
+        <button class="signup-btn" onclick="go('create.html')"><i class="fas fa-user-plus"></i>Sign Up</button>
     `;
     profileIcon.style.display = "none";
 }
