@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>School Management</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Management</title>
 
 <style>
 /* ===== GLOBAL ===== */
@@ -13,235 +13,266 @@ body {
   background: #f4f6f8;
 }
 
+header {
+  background: #2f6fed;
+  color: white;
+  padding: 12px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+header button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+header button.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#editToggle {
+  background: white;
+  color: #2f6fed;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.edit-on {
+  background: #ff9800 !important;
+  color: white !important;
+}
+
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
   padding: 15px;
 }
 
-h2, h3 {
-  text-align: center;
-  color: #333;
-}
-
-.section {
-  background: #fff;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.08);
-}
-
-/* ===== FORM ELEMENTS ===== */
-input, select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #45a049;
-}
-
-/* ===== LISTS ===== */
-.list {
-  margin-top: 10px;
-}
-
-.list-item {
-  background: #f1f1f1;
-  padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-/* ===== GRID ===== */
-.grid {
+/* ===== DASHBOARD CARDS ===== */
+.cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
 }
 
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  text-align: center;
+  cursor: pointer;
+}
+
+.card h3 {
+  margin: 10px 0 0;
+  color: #333;
+}
+
+/* ===== LIST ===== */
+.list {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+.item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.add-btn {
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: #2f6fed;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: none;
+}
+
 /* ===== MOBILE ===== */
-@media (max-width: 700px) {
-  .grid {
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
+  header {
+    justify-content: center;
   }
 }
 </style>
 </head>
 
 <body>
+
+<!-- ===== TOP MENU ===== -->
+<header>
+  <button onclick="showPage('dashboard', this)" class="active">Dashboard</button>
+  <button onclick="showPage('staff', this)">Staff</button>
+  <button onclick="showPage('classes', this)">Classes</button>
+  <button id="editToggle" onclick="toggleEdit()">Edit: OFF</button>
+</header>
+
 <div class="container">
 
-<h2>School Management</h2>
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard" class="page">
+  <h2>Dashboard</h2>
 
-<!-- LEVELS -->
-<div class="section">
-  <h3>Levels</h3>
-  <input type="text" id="levelName" placeholder="e.g. Primary, O'Level">
-  <button onclick="addLevel()">Add Level</button>
-  <div id="levelList" class="list"></div>
+  <div class="cards">
+    <div class="card" onclick="showPage('staff')">
+      <h2 id="staffCount">0</h2>
+      <h3>Staff</h3>
+    </div>
+
+    <div class="card" onclick="showPage('classes')">
+      <h2 id="classCount">0</h2>
+      <h3>Classes</h3>
+    </div>
+
+    <div class="card">
+      <h2 id="subjectCount">0</h2>
+      <h3>Subjects</h3>
+    </div>
+  </div>
 </div>
 
-<!-- CLASSES -->
-<div class="section">
-  <h3>Classes</h3>
-  <select id="classLevel"></select>
-  <input type="text" id="className" placeholder="e.g. P4A, S2B">
-  <button onclick="addClass()">Add Class</button>
+<!-- ===== STAFF PAGE ===== -->
+<div id="staff" class="page" style="display:none">
+  <h2>Teaching Staff</h2>
+  <button id="addStaffBtn" class="add-btn" onclick="addStaff()">➕ Add Teacher</button>
+  <div id="staffList" class="list"></div>
+</div>
+
+<!-- ===== CLASSES PAGE ===== -->
+<div id="classes" class="page" style="display:none">
+  <h2>Classes & Subjects</h2>
+  <button id="addClassBtn" class="add-btn" onclick="addClass()">➕ Add Class</button>
   <div id="classList" class="list"></div>
-</div>
-
-<!-- SUBJECTS -->
-<div class="section">
-  <h3>Subjects</h3>
-  <select id="subjectLevel"></select>
-  <input type="text" id="subjectName" placeholder="e.g. Mathematics">
-  <button onclick="addSubject()">Add Subject</button>
-  <div id="subjectList" class="list"></div>
-</div>
-
-<!-- TEACHERS -->
-<div class="section">
-  <h3>Teachers</h3>
-  <input type="text" id="teacherName" placeholder="Teacher name">
-  <select id="teacherSubject"></select>
-  <select id="teacherLevel"></select>
-  <button onclick="addTeacher()">Add Teacher</button>
-  <div id="teacherList" class="list"></div>
 </div>
 
 </div>
 
 <script>
-/* ===== SCHOOL CONTEXT ===== */
-const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin")) || { schoolId: "DEMO_SCHOOL" };
-const schoolId = currentAdmin.schoolId;
+/* ===== DATA (LATER FROM DATABASE) ===== */
+let editMode = false;
 
-/* ===== STORAGE KEYS ===== */
-const levelsKey = "levels_" + schoolId;
-const classesKey = "classes_" + schoolId;
-const subjectsKey = "subjects_" + schoolId;
-const teachersKey = "teachers_" + schoolId;
+const teachers = [
+  { name: "Mr. John", subject: "Math", level: "Primary" },
+  { name: "Ms. Alice", subject: "English", level: "Primary" },
+  { name: "Mr. Paul", subject: "Physics", level: "Secondary" }
+];
 
-/* ===== LOAD DATA ===== */
-function getData(key) {
-  return JSON.parse(localStorage.getItem(key)) || [];
+const classes = [
+  { name: "P4A", subjects: ["Math – Mr. John", "English – Ms. Alice"] },
+  { name: "S2B", subjects: ["Physics – Mr. Paul"] }
+];
+
+const subjects = ["Math", "English", "Physics"];
+
+/* ===== PAGE SWITCHING ===== */
+function showPage(page, btn) {
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.getElementById(page).style.display = "block";
+
+  document.querySelectorAll("header button").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
 }
 
-function saveData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+/* ===== EDIT MODE ===== */
+function toggleEdit() {
+  editMode = !editMode;
+  const btn = document.getElementById("editToggle");
+  btn.textContent = editMode ? "Edit: ON" : "Edit: OFF";
+  btn.classList.toggle("edit-on", editMode);
+
+  document.getElementById("addStaffBtn").style.display = editMode ? "block" : "none";
+  document.getElementById("addClassBtn").style.display = editMode ? "block" : "none";
+
+  renderStaff();
+  renderClasses();
 }
 
-/* ===== LEVELS ===== */
-function addLevel() {
-  const name = levelName.value.trim();
-  if (!name) return;
+/* ===== DASHBOARD ===== */
+function updateDashboard() {
+  staffCount.textContent = teachers.length;
+  classCount.textContent = classes.length;
+  subjectCount.textContent = subjects.length;
+}
 
-  const levels = getData(levelsKey);
-  levels.push({ id: Date.now(), name });
-  saveData(levelsKey, levels);
+/* ===== STAFF ===== */
+function renderStaff() {
+  staffList.innerHTML = teachers.map((t, i) =>
+    `<div class="item">
+      ${t.name} — ${t.subject} (${t.level})
+      ${editMode ? `<button onclick="removeStaff(${i})">🗑</button>` : ""}
+    </div>`
+  ).join("");
+}
 
-  levelName.value = "";
-  renderAll();
+function addStaff() {
+  const name = prompt("Teacher name:");
+  const subject = prompt("Subject:");
+  const level = prompt("Level:");
+  if (name && subject && level) {
+    teachers.push({ name, subject, level });
+    renderStaff();
+    updateDashboard();
+  }
+}
+
+function removeStaff(i) {
+  if (confirm("Remove teacher?")) {
+    teachers.splice(i, 1);
+    renderStaff();
+    updateDashboard();
+  }
 }
 
 /* ===== CLASSES ===== */
+function renderClasses() {
+  classList.innerHTML = classes.map((c, i) =>
+    `<div class="item">
+      <strong>${c.name}</strong><br>
+      ${c.subjects.join("<br>")}
+      ${editMode ? `<br><button onclick="removeClass(${i})">🗑</button>` : ""}
+    </div>`
+  ).join("");
+}
+
 function addClass() {
-  const levelId = classLevel.value;
-  const name = className.value.trim();
-  if (!levelId || !name) return;
-
-  const classes = getData(classesKey);
-  classes.push({ id: Date.now(), name, levelId });
-  saveData(classesKey, classes);
-
-  className.value = "";
-  renderAll();
+  const name = prompt("Class name:");
+  if (name) {
+    classes.push({ name, subjects: [] });
+    renderClasses();
+    updateDashboard();
+  }
 }
 
-/* ===== SUBJECTS ===== */
-function addSubject() {
-  const levelId = subjectLevel.value;
-  const name = subjectName.value.trim();
-  if (!levelId || !name) return;
-
-  const subjects = getData(subjectsKey);
-  subjects.push({ id: Date.now(), name, levelId });
-  saveData(subjectsKey, subjects);
-
-  subjectName.value = "";
-  renderAll();
+function removeClass(i) {
+  if (confirm("Remove class?")) {
+    classes.splice(i, 1);
+    renderClasses();
+    updateDashboard();
+  }
 }
 
-/* ===== TEACHERS ===== */
-function addTeacher() {
-  const name = teacherName.value.trim();
-  const subjectId = teacherSubject.value;
-  const levelId = teacherLevel.value;
-  if (!name || !subjectId || !levelId) return;
-
-  const teachers = getData(teachersKey);
-  teachers.push({ id: Date.now(), name, subjectId, levelId });
-  saveData(teachersKey, teachers);
-
-  teacherName.value = "";
-  renderAll();
-}
-
-/* ===== RENDER ===== */
-function renderAll() {
-  const levels = getData(levelsKey);
-  const classes = getData(classesKey);
-  const subjects = getData(subjectsKey);
-  const teachers = getData(teachersKey);
-
-  // LEVEL LIST
-  levelList.innerHTML = levels.map(l => `<div class="list-item">${l.name}</div>`).join("");
-
-  // DROPDOWNS
-  classLevel.innerHTML =
-  subjectLevel.innerHTML =
-  teacherLevel.innerHTML =
-    levels.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
-
-  // CLASS LIST
-  classList.innerHTML = classes.map(c => {
-    const lvl = levels.find(l => l.id == c.levelId);
-    return `<div class="list-item">${c.name} (${lvl?.name})</div>`;
-  }).join("");
-
-  // SUBJECT LIST
-  subjectList.innerHTML = subjects.map(s => {
-    const lvl = levels.find(l => l.id == s.levelId);
-    return `<div class="list-item">${s.name} (${lvl?.name})</div>`;
-  }).join("");
-
-  // TEACHER SUBJECT DROPDOWN
-  teacherSubject.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
-
-  // TEACHER LIST
-  teacherList.innerHTML = teachers.map(t => {
-    const subj = subjects.find(s => s.id == t.subjectId);
-    const lvl = levels.find(l => l.id == t.levelId);
-    return `<div class="list-item">${t.name} – ${subj?.name} (${lvl?.name})</div>`;
-  }).join("");
-}
-
-renderAll();
+/* ===== INIT ===== */
+updateDashboard();
+renderStaff();
+renderClasses();
 </script>
+
 </body>
 </html>
