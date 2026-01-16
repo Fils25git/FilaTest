@@ -3,8 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin Dashboard</title>
+<style>
+/* General body styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+/* Centered container */
+.container {
+  max-width: 900px;
+  margin: 30px auto;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+h2, h3 {
+  text-align: center;
+  color: #333;
+}
+
+/* Inputs and selects */
+input, select {
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: calc(50% - 10px);
+}
+
+/* Buttons */
+button {
+  padding: 8px 16px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+/* Message styling */
+p#msg {
+  color: red;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  input, select {
+    width: 100%;
+  }
+}
+</style>
 </head>
 <body>
+<div class="container">
 <h2>Admin Dashboard</h2>
 <button onclick="logout()">Logout</button>
 
@@ -28,11 +114,11 @@
   <option>Thursday</option>
   <option>Friday</option>
 </select>
-<input type="number" id="periodInput" placeholder="Period (1..8)">
+<input type="number" id="periodInput" placeholder="Period (1..8)" min="1" max="8">
 <button onclick="addTimetable()">Assign</button>
 
 <h3>Timetable</h3>
-<table border="1" id="timetableTable">
+<table id="timetableTable">
   <thead>
     <tr>
       <th>Class</th>
@@ -44,25 +130,35 @@
   </thead>
   <tbody></tbody>
 </table>
+<p id="msg"></p>
+</div>
 
 <script>
+// Check login
 let currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
-if(!currentAdmin) window.location.href = 'index.html';
+if(!currentAdmin) {
+  window.location.href = 'index.html';
+}
 
+// Keys for localStorage per school
 const teachersKey = 'teachers_' + currentAdmin.schoolId;
 const classesKey = 'classes_' + currentAdmin.schoolId;
 const timetableKey = 'timetable_' + currentAdmin.schoolId;
 
-//function logout() {
-//  localStorage.removeItem('currentAdmin');
- // window.location.href = 'index.html';
-//}
+// Logout function
+function logout() {
+  localStorage.removeItem('currentAdmin');
+  window.location.href = 'index.html';
+}
 
 // Add teacher
 function addTeacher() {
   const name = document.getElementById('teacherName').value.trim();
   const subject = document.getElementById('teacherSubject').value.trim();
-  if(!name || !subject) return;
+  if(!name || !subject) {
+    showMessage("Enter teacher name and subject");
+    return;
+  }
 
   let teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
   teachers.push({ id: 'T'+Date.now(), name, subject });
@@ -70,17 +166,22 @@ function addTeacher() {
   document.getElementById('teacherName').value='';
   document.getElementById('teacherSubject').value='';
   loadDropdowns();
+  showMessage("Teacher added successfully", 'green');
 }
 
 // Add class
 function addClass() {
   const name = document.getElementById('className').value.trim();
-  if(!name) return;
+  if(!name) {
+    showMessage("Enter class name");
+    return;
+  }
   let classes = JSON.parse(localStorage.getItem(classesKey)) || [];
   classes.push({ id: 'C'+Date.now(), name });
   localStorage.setItem(classesKey, JSON.stringify(classes));
   document.getElementById('className').value='';
   loadDropdowns();
+  showMessage("Class added successfully", 'green');
 }
 
 // Load dropdowns
@@ -92,12 +193,18 @@ function loadDropdowns() {
 
   const classes = JSON.parse(localStorage.getItem(classesKey)) || [];
   classes.forEach(c => {
-    const opt = document.createElement('option'); opt.value = c.id; opt.textContent=c.name; classSelect.appendChild(opt);
+    const opt = document.createElement('option'); 
+    opt.value = c.id; 
+    opt.textContent = c.name; 
+    classSelect.appendChild(opt);
   });
 
   const teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
   teachers.forEach(t => {
-    const opt = document.createElement('option'); opt.value = t.id; opt.textContent=t.name; teacherSelect.appendChild(opt);
+    const opt = document.createElement('option'); 
+    opt.value = t.id; 
+    opt.textContent = t.name; 
+    teacherSelect.appendChild(opt);
   });
 }
 
@@ -109,7 +216,10 @@ function addTimetable() {
   const day = document.getElementById('daySelect').value;
   const period = parseInt(document.getElementById('periodInput').value);
 
-  if(!classId || !teacherId || !subject || !day || !period) return;
+  if(!classId || !teacherId || !subject || !day || !period) {
+    showMessage("Fill all timetable fields");
+    return;
+  }
 
   let timetable = JSON.parse(localStorage.getItem(timetableKey)) || [];
   timetable.push({ id:'TT'+Date.now(), classId, teacherId, subject, day, period });
@@ -117,6 +227,7 @@ function addTimetable() {
   document.getElementById('subjectInput').value='';
   document.getElementById('periodInput').value='';
   renderTimetable();
+  showMessage("Timetable assigned successfully", 'green');
 }
 
 // Render timetable table
@@ -136,6 +247,15 @@ function renderTimetable() {
   });
 }
 
+// Show messages
+function showMessage(msg, color='red') {
+  const p = document.getElementById('msg');
+  p.textContent = msg;
+  p.style.color = color;
+  setTimeout(()=> p.textContent='', 3000);
+}
+
+// Initial load
 loadDropdowns();
 renderTimetable();
 </script>
