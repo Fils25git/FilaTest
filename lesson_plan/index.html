@@ -71,10 +71,19 @@
 
 <div class="container">
     <!-- Header -->
-    <div class="header">
+  <div class="header">
+    <div class="header-left">
         <img src="../logo.png">
         <h2>Fila Assistant</h2>
     </div>
+
+    <!-- Profile Icon (fixed right) -->
+    <i id="profileIcon"
+       class="fas fa-user-circle profile-icon"
+       onclick="go('../profile.html')"
+       title="My Profile">
+    </i>
+</div>
    
     <!-- Form -->
     <div class="form-container">
@@ -406,6 +415,9 @@
         window.getSelection().removeAllRanges();
         showFloatingMessage("Lesson copied.");
     }
+    function go(path) {
+    window.location.href = path;
+}
 </script>
 
 </body>
