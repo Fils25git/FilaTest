@@ -2,262 +2,246 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Dashboard</title>
+<title>School Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-/* General body styling */
+/* ===== GLOBAL ===== */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
   margin: 0;
-  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
 }
 
-/* Centered container */
 .container {
-  max-width: 900px;
-  margin: 30px auto;
-  background-color: #fff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  max-width: 1000px;
+  margin: auto;
+  padding: 15px;
 }
 
-/* Headings */
 h2, h3 {
   text-align: center;
   color: #333;
 }
 
-/* Inputs and selects */
-input, select {
-  padding: 8px 12px;
-  margin: 5px 0;
+.section {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+/* ===== FORM ELEMENTS ===== */
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
   font-size: 14px;
-  width: calc(50% - 10px);
 }
 
-/* Buttons */
 button {
-  padding: 8px 16px;
-  margin: 5px 0;
-  border-radius: 5px;
-  border: none;
-  background-color: #4CAF50;
+  background: #4CAF50;
   color: white;
-  font-size: 14px;
+  border: none;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 button:hover {
-  background-color: #45a049;
+  background: #45a049;
 }
 
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background-color: #f2f2f2;
-  color: #333;
-}
-
-/* Message styling */
-p#msg {
-  color: red;
-  text-align: center;
-  font-weight: bold;
+/* ===== LISTS ===== */
+.list {
   margin-top: 10px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  input, select {
-    width: 100%;
+.list-item {
+  background: #f1f1f1;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
 </head>
+
 <body>
 <div class="container">
-<h2>Admin Dashboard</h2>
-<button onclick="logout()">Logout</button>
 
-<h3>Add Teacher</h3>
-<input type="text" id="teacherName" placeholder="Teacher Name">
-<input type="text" id="teacherSubject" placeholder="Subject">
-<button onclick="addTeacher()">Add Teacher</button>
+<h2>School Management</h2>
 
-<h3>Add Class</h3>
-<input type="text" id="className" placeholder="Class Name">
-<button onclick="addClass()">Add Class</button>
+<!-- LEVELS -->
+<div class="section">
+  <h3>Levels</h3>
+  <input type="text" id="levelName" placeholder="e.g. Primary, O'Level">
+  <button onclick="addLevel()">Add Level</button>
+  <div id="levelList" class="list"></div>
+</div>
 
-<h3>Create Timetable</h3>
-<select id="selectClass"></select>
-<select id="selectTeacher"></select>
-<input type="text" id="subjectInput" placeholder="Subject">
-<select id="daySelect">
-  <option>Monday</option>
-  <option>Tuesday</option>
-  <option>Wednesday</option>
-  <option>Thursday</option>
-  <option>Friday</option>
-</select>
-<input type="number" id="periodInput" placeholder="Period (1..8)" min="1" max="8">
-<button onclick="addTimetable()">Assign</button>
+<!-- CLASSES -->
+<div class="section">
+  <h3>Classes</h3>
+  <select id="classLevel"></select>
+  <input type="text" id="className" placeholder="e.g. P4A, S2B">
+  <button onclick="addClass()">Add Class</button>
+  <div id="classList" class="list"></div>
+</div>
 
-<h3>Timetable</h3>
-<table id="timetableTable">
-  <thead>
-    <tr>
-      <th>Class</th>
-      <th>Day</th>
-      <th>Period</th>
-      <th>Teacher</th>
-      <th>Subject</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-<p id="msg"></p>
+<!-- SUBJECTS -->
+<div class="section">
+  <h3>Subjects</h3>
+  <select id="subjectLevel"></select>
+  <input type="text" id="subjectName" placeholder="e.g. Mathematics">
+  <button onclick="addSubject()">Add Subject</button>
+  <div id="subjectList" class="list"></div>
+</div>
+
+<!-- TEACHERS -->
+<div class="section">
+  <h3>Teachers</h3>
+  <input type="text" id="teacherName" placeholder="Teacher name">
+  <select id="teacherSubject"></select>
+  <select id="teacherLevel"></select>
+  <button onclick="addTeacher()">Add Teacher</button>
+  <div id="teacherList" class="list"></div>
+</div>
+
 </div>
 
 <script>
-// Check login
-let currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
-if(!currentAdmin) {
-  window.location.href = 'index.html';
+/* ===== SCHOOL CONTEXT ===== */
+const currentAdmin = JSON.parse(localStorage.getItem("currentAdmin")) || { schoolId: "DEMO_SCHOOL" };
+const schoolId = currentAdmin.schoolId;
+
+/* ===== STORAGE KEYS ===== */
+const levelsKey = "levels_" + schoolId;
+const classesKey = "classes_" + schoolId;
+const subjectsKey = "subjects_" + schoolId;
+const teachersKey = "teachers_" + schoolId;
+
+/* ===== LOAD DATA ===== */
+function getData(key) {
+  return JSON.parse(localStorage.getItem(key)) || [];
 }
 
-// Keys for localStorage per school
-const teachersKey = 'teachers_' + currentAdmin.schoolId;
-const classesKey = 'classes_' + currentAdmin.schoolId;
-const timetableKey = 'timetable_' + currentAdmin.schoolId;
-
-// Logout function
-function logout() {
-  localStorage.removeItem('currentAdmin');
-  window.location.href = 'index.html';
+function saveData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-// Add teacher
-function addTeacher() {
-  const name = document.getElementById('teacherName').value.trim();
-  const subject = document.getElementById('teacherSubject').value.trim();
-  if(!name || !subject) {
-    showMessage("Enter teacher name and subject");
-    return;
-  }
+/* ===== LEVELS ===== */
+function addLevel() {
+  const name = levelName.value.trim();
+  if (!name) return;
 
-  let teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
-  teachers.push({ id: 'T'+Date.now(), name, subject });
-  localStorage.setItem(teachersKey, JSON.stringify(teachers));
-  document.getElementById('teacherName').value='';
-  document.getElementById('teacherSubject').value='';
-  loadDropdowns();
-  showMessage("Teacher added successfully", 'green');
+  const levels = getData(levelsKey);
+  levels.push({ id: Date.now(), name });
+  saveData(levelsKey, levels);
+
+  levelName.value = "";
+  renderAll();
 }
 
-// Add class
+/* ===== CLASSES ===== */
 function addClass() {
-  const name = document.getElementById('className').value.trim();
-  if(!name) {
-    showMessage("Enter class name");
-    return;
-  }
-  let classes = JSON.parse(localStorage.getItem(classesKey)) || [];
-  classes.push({ id: 'C'+Date.now(), name });
-  localStorage.setItem(classesKey, JSON.stringify(classes));
-  document.getElementById('className').value='';
-  loadDropdowns();
-  showMessage("Class added successfully", 'green');
+  const levelId = classLevel.value;
+  const name = className.value.trim();
+  if (!levelId || !name) return;
+
+  const classes = getData(classesKey);
+  classes.push({ id: Date.now(), name, levelId });
+  saveData(classesKey, classes);
+
+  className.value = "";
+  renderAll();
 }
 
-// Load dropdowns
-function loadDropdowns() {
-  const classSelect = document.getElementById('selectClass');
-  const teacherSelect = document.getElementById('selectTeacher');
-  classSelect.innerHTML = '';
-  teacherSelect.innerHTML = '';
+/* ===== SUBJECTS ===== */
+function addSubject() {
+  const levelId = subjectLevel.value;
+  const name = subjectName.value.trim();
+  if (!levelId || !name) return;
 
-  const classes = JSON.parse(localStorage.getItem(classesKey)) || [];
-  classes.forEach(c => {
-    const opt = document.createElement('option'); 
-    opt.value = c.id; 
-    opt.textContent = c.name; 
-    classSelect.appendChild(opt);
-  });
+  const subjects = getData(subjectsKey);
+  subjects.push({ id: Date.now(), name, levelId });
+  saveData(subjectsKey, subjects);
 
-  const teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
-  teachers.forEach(t => {
-    const opt = document.createElement('option'); 
-    opt.value = t.id; 
-    opt.textContent = t.name; 
-    teacherSelect.appendChild(opt);
-  });
+  subjectName.value = "";
+  renderAll();
 }
 
-// Add timetable assignment
-function addTimetable() {
-  const classId = document.getElementById('selectClass').value;
-  const teacherId = document.getElementById('selectTeacher').value;
-  const subject = document.getElementById('subjectInput').value.trim();
-  const day = document.getElementById('daySelect').value;
-  const period = parseInt(document.getElementById('periodInput').value);
+/* ===== TEACHERS ===== */
+function addTeacher() {
+  const name = teacherName.value.trim();
+  const subjectId = teacherSubject.value;
+  const levelId = teacherLevel.value;
+  if (!name || !subjectId || !levelId) return;
 
-  if(!classId || !teacherId || !subject || !day || !period) {
-    showMessage("Fill all timetable fields");
-    return;
-  }
+  const teachers = getData(teachersKey);
+  teachers.push({ id: Date.now(), name, subjectId, levelId });
+  saveData(teachersKey, teachers);
 
-  let timetable = JSON.parse(localStorage.getItem(timetableKey)) || [];
-  timetable.push({ id:'TT'+Date.now(), classId, teacherId, subject, day, period });
-  localStorage.setItem(timetableKey, JSON.stringify(timetable));
-  document.getElementById('subjectInput').value='';
-  document.getElementById('periodInput').value='';
-  renderTimetable();
-  showMessage("Timetable assigned successfully", 'green');
+  teacherName.value = "";
+  renderAll();
 }
 
-// Render timetable table
-function renderTimetable() {
-  const tbody = document.querySelector('#timetableTable tbody');
-  tbody.innerHTML='';
-  const timetable = JSON.parse(localStorage.getItem(timetableKey)) || [];
-  const classes = JSON.parse(localStorage.getItem(classesKey)) || [];
-  const teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
+/* ===== RENDER ===== */
+function renderAll() {
+  const levels = getData(levelsKey);
+  const classes = getData(classesKey);
+  const subjects = getData(subjectsKey);
+  const teachers = getData(teachersKey);
 
-  timetable.forEach(t => {
-    const tr = document.createElement('tr');
-    const className = classes.find(c=>c.id===t.classId)?.name || '';
-    const teacherName = teachers.find(tc=>tc.id===t.teacherId)?.name || '';
-    tr.innerHTML = `<td>${className}</td><td>${t.day}</td><td>${t.period}</td><td>${teacherName}</td><td>${t.subject}</td>`;
-    tbody.appendChild(tr);
-  });
+  // LEVEL LIST
+  levelList.innerHTML = levels.map(l => `<div class="list-item">${l.name}</div>`).join("");
+
+  // DROPDOWNS
+  classLevel.innerHTML =
+  subjectLevel.innerHTML =
+  teacherLevel.innerHTML =
+    levels.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
+
+  // CLASS LIST
+  classList.innerHTML = classes.map(c => {
+    const lvl = levels.find(l => l.id == c.levelId);
+    return `<div class="list-item">${c.name} (${lvl?.name})</div>`;
+  }).join("");
+
+  // SUBJECT LIST
+  subjectList.innerHTML = subjects.map(s => {
+    const lvl = levels.find(l => l.id == s.levelId);
+    return `<div class="list-item">${s.name} (${lvl?.name})</div>`;
+  }).join("");
+
+  // TEACHER SUBJECT DROPDOWN
+  teacherSubject.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+
+  // TEACHER LIST
+  teacherList.innerHTML = teachers.map(t => {
+    const subj = subjects.find(s => s.id == t.subjectId);
+    const lvl = levels.find(l => l.id == t.levelId);
+    return `<div class="list-item">${t.name} – ${subj?.name} (${lvl?.name})</div>`;
+  }).join("");
 }
 
-// Show messages
-function showMessage(msg, color='red') {
-  const p = document.getElementById('msg');
-  p.textContent = msg;
-  p.style.color = color;
-  setTimeout(()=> p.textContent='', 3000);
-}
-
-// Initial load
-loadDropdowns();
-renderTimetable();
+renderAll();
 </script>
 </body>
 </html>
