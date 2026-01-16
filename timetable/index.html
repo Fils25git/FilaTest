@@ -56,7 +56,7 @@ header button.active {
   padding: 15px;
 }
 
-/* ===== DASHBOARD CARDS ===== */
+/* ===== DASHBOARD ===== */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -72,26 +72,33 @@ header button.active {
   cursor: pointer;
 }
 
-.card h3 {
-  margin: 10px 0 0;
-  color: #333;
+/* ===== TABLES ===== */
+.table-wrapper {
+  overflow-x: auto;
 }
 
-/* ===== LIST ===== */
-.list {
+table {
+  width: 100%;
+  border-collapse: collapse;
   background: white;
   border-radius: 10px;
-  padding: 15px;
+  overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.08);
 }
 
-.item {
-  padding: 10px;
+th, td {
+  padding: 12px;
   border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 14px;
 }
 
-.item:last-child {
-  border-bottom: none;
+th {
+  background: #f0f3f8;
+}
+
+tr:hover {
+  background: #f9fbff;
 }
 
 .add-btn {
@@ -103,6 +110,13 @@ header button.active {
   border-radius: 6px;
   cursor: pointer;
   display: none;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 /* ===== MOBILE ===== */
@@ -129,43 +143,67 @@ header button.active {
 <!-- ===== DASHBOARD ===== -->
 <div id="dashboard" class="page">
   <h2>Dashboard</h2>
-
   <div class="cards">
     <div class="card" onclick="showPage('staff')">
       <h2 id="staffCount">0</h2>
-      <h3>Staff</h3>
+      <p>Staff</p>
     </div>
-
     <div class="card" onclick="showPage('classes')">
       <h2 id="classCount">0</h2>
-      <h3>Classes</h3>
+      <p>Classes</p>
     </div>
-
     <div class="card">
       <h2 id="subjectCount">0</h2>
-      <h3>Subjects</h3>
+      <p>Subjects</p>
     </div>
   </div>
 </div>
 
-<!-- ===== STAFF PAGE ===== -->
+<!-- ===== STAFF ===== -->
 <div id="staff" class="page" style="display:none">
   <h2>Teaching Staff</h2>
   <button id="addStaffBtn" class="add-btn" onclick="addStaff()">➕ Add Teacher</button>
-  <div id="staffList" class="list"></div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Level</th>
+          <th id="staffActionHead" style="display:none">Action</th>
+        </tr>
+      </thead>
+      <tbody id="staffTable"></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- ===== CLASSES PAGE ===== -->
+<!-- ===== CLASSES ===== -->
 <div id="classes" class="page" style="display:none">
   <h2>Classes & Subjects</h2>
   <button id="addClassBtn" class="add-btn" onclick="addClass()">➕ Add Class</button>
-  <div id="classList" class="list"></div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Class</th>
+          <th>Subjects & Teachers</th>
+          <th id="classActionHead" style="display:none">Action</th>
+        </tr>
+      </thead>
+      <tbody id="classTable"></tbody>
+    </table>
+  </div>
 </div>
 
 </div>
 
 <script>
-/* ===== DATA (LATER FROM DATABASE) ===== */
+/* ===== DATA ===== */
 let editMode = false;
 
 const teachers = [
@@ -181,7 +219,7 @@ const classes = [
 
 const subjects = ["Math", "English", "Physics"];
 
-/* ===== PAGE SWITCHING ===== */
+/* ===== NAVIGATION ===== */
 function showPage(page, btn) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
   document.getElementById(page).style.display = "block";
@@ -197,8 +235,10 @@ function toggleEdit() {
   btn.textContent = editMode ? "Edit: ON" : "Edit: OFF";
   btn.classList.toggle("edit-on", editMode);
 
-  document.getElementById("addStaffBtn").style.display = editMode ? "block" : "none";
-  document.getElementById("addClassBtn").style.display = editMode ? "block" : "none";
+  addStaffBtn.style.display = editMode ? "block" : "none";
+  addClassBtn.style.display = editMode ? "block" : "none";
+  staffActionHead.style.display = editMode ? "table-cell" : "none";
+  classActionHead.style.display = editMode ? "table-cell" : "none";
 
   renderStaff();
   renderClasses();
@@ -213,12 +253,15 @@ function updateDashboard() {
 
 /* ===== STAFF ===== */
 function renderStaff() {
-  staffList.innerHTML = teachers.map((t, i) =>
-    `<div class="item">
-      ${t.name} — ${t.subject} (${t.level})
-      ${editMode ? `<button onclick="removeStaff(${i})">🗑</button>` : ""}
-    </div>`
-  ).join("");
+  staffTable.innerHTML = teachers.map((t, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${t.name}</td>
+      <td>${t.subject}</td>
+      <td>${t.level}</td>
+      ${editMode ? `<td><button class="action-btn" onclick="removeStaff(${i})">🗑</button></td>` : ""}
+    </tr>
+  `).join("");
 }
 
 function addStaff() {
@@ -242,13 +285,14 @@ function removeStaff(i) {
 
 /* ===== CLASSES ===== */
 function renderClasses() {
-  classList.innerHTML = classes.map((c, i) =>
-    `<div class="item">
-      <strong>${c.name}</strong><br>
-      ${c.subjects.join("<br>")}
-      ${editMode ? `<br><button onclick="removeClass(${i})">🗑</button>` : ""}
-    </div>`
-  ).join("");
+  classTable.innerHTML = classes.map((c, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${c.name}</td>
+      <td>${c.subjects.length ? c.subjects.join("<br>") : "—"}</td>
+      ${editMode ? `<td><button class="action-btn" onclick="removeClass(${i})">🗑</button></td>` : ""}
+    </tr>
+  `).join("");
 }
 
 function addClass() {
@@ -275,4 +319,4 @@ renderClasses();
 </script>
 
 </body>
-</html>
+            </html>
