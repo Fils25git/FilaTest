@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+</head>
+<body>
+<h2>Admin Dashboard</h2>
+<button onclick="logout()">Logout</button>
+
+<h3>Add Teacher</h3>
+<input type="text" id="teacherName" placeholder="Teacher Name">
+<input type="text" id="teacherSubject" placeholder="Subject">
+<button onclick="addTeacher()">Add Teacher</button>
+
+<h3>Add Class</h3>
+<input type="text" id="className" placeholder="Class Name">
+<button onclick="addClass()">Add Class</button>
+
+<h3>Create Timetable</h3>
+<select id="selectClass"></select>
+<select id="selectTeacher"></select>
+<input type="text" id="subjectInput" placeholder="Subject">
+<select id="daySelect">
+  <option>Monday</option>
+  <option>Tuesday</option>
+  <option>Wednesday</option>
+  <option>Thursday</option>
+  <option>Friday</option>
+</select>
+<input type="number" id="periodInput" placeholder="Period (1..8)">
+<button onclick="addTimetable()">Assign</button>
+
+<h3>Timetable</h3>
+<table border="1" id="timetableTable">
+  <thead>
+    <tr>
+      <th>Class</th>
+      <th>Day</th>
+      <th>Period</th>
+      <th>Teacher</th>
+      <th>Subject</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+let currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
+if(!currentAdmin) window.location.href = 'index.html';
+
+const teachersKey = 'teachers_' + currentAdmin.schoolId;
+const classesKey = 'classes_' + currentAdmin.schoolId;
+const timetableKey = 'timetable_' + currentAdmin.schoolId;
+
+function logout() {
+  localStorage.removeItem('currentAdmin');
+  window.location.href = 'index.html';
+}
+
+// Add teacher
+function addTeacher() {
+  const name = document.getElementById('teacherName').value.trim();
+  const subject = document.getElementById('teacherSubject').value.trim();
+  if(!name || !subject) return;
+
+  let teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
+  teachers.push({ id: 'T'+Date.now(), name, subject });
+  localStorage.setItem(teachersKey, JSON.stringify(teachers));
+  document.getElementById('teacherName').value='';
+  document.getElementById('teacherSubject').value='';
+  loadDropdowns();
+}
+
+// Add class
+function addClass() {
+  const name = document.getElementById('className').value.trim();
+  if(!name) return;
+  let classes = JSON.parse(localStorage.getItem(classesKey)) || [];
+  classes.push({ id: 'C'+Date.now(), name });
+  localStorage.setItem(classesKey, JSON.stringify(classes));
+  document.getElementById('className').value='';
+  loadDropdowns();
+}
+
+// Load dropdowns
+function loadDropdowns() {
+  const classSelect = document.getElementById('selectClass');
+  const teacherSelect = document.getElementById('selectTeacher');
+  classSelect.innerHTML = '';
+  teacherSelect.innerHTML = '';
+
+  const classes = JSON.parse(localStorage.getItem(classesKey)) || [];
+  classes.forEach(c => {
+    const opt = document.createElement('option'); opt.value = c.id; opt.textContent=c.name; classSelect.appendChild(opt);
+  });
+
+  const teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
+  teachers.forEach(t => {
+    const opt = document.createElement('option'); opt.value = t.id; opt.textContent=t.name; teacherSelect.appendChild(opt);
+  });
+}
+
+// Add timetable assignment
+function addTimetable() {
+  const classId = document.getElementById('selectClass').value;
+  const teacherId = document.getElementById('selectTeacher').value;
+  const subject = document.getElementById('subjectInput').value.trim();
+  const day = document.getElementById('daySelect').value;
+  const period = parseInt(document.getElementById('periodInput').value);
+
+  if(!classId || !teacherId || !subject || !day || !period) return;
+
+  let timetable = JSON.parse(localStorage.getItem(timetableKey)) || [];
+  timetable.push({ id:'TT'+Date.now(), classId, teacherId, subject, day, period });
+  localStorage.setItem(timetableKey, JSON.stringify(timetable));
+  document.getElementById('subjectInput').value='';
+  document.getElementById('periodInput').value='';
+  renderTimetable();
+}
+
+// Render timetable table
+function renderTimetable() {
+  const tbody = document.querySelector('#timetableTable tbody');
+  tbody.innerHTML='';
+  const timetable = JSON.parse(localStorage.getItem(timetableKey)) || [];
+  const classes = JSON.parse(localStorage.getItem(classesKey)) || [];
+  const teachers = JSON.parse(localStorage.getItem(teachersKey)) || [];
+
+  timetable.forEach(t => {
+    const tr = document.createElement('tr');
+    const className = classes.find(c=>c.id===t.classId)?.name || '';
+    const teacherName = teachers.find(tc=>tc.id===t.teacherId)?.name || '';
+    tr.innerHTML = `<td>${className}</td><td>${t.day}</td><td>${t.period}</td><td>${teacherName}</td><td>${t.subject}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+loadDropdowns();
+renderTimetable();
+</script>
+</body>
+</html>
