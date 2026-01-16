@@ -162,6 +162,7 @@ footer {
     <div class="card" onclick="window.location.href='https://fleduportal.netlify.app/userselection.html'">
         <i class="fas fa-download"></i>
         <h3>Get Downloadable Resources</h3>
+        <p>Books,Past papers, Downloadable notes, workbooks,...</p>
     </div>
 </div>
 
@@ -175,73 +176,87 @@ const authBar = document.getElementById("authBar");
 const profileIcon = document.getElementById("profileIcon");
 const toast = document.getElementById("toast");
 
-const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+/* ✅ LOGIN STATE (matches login.html) */
+const isLoggedIn = !!localStorage.getItem("auth_token");
 
-/* Render auth UI */
-if (isLoggedIn){
-    authBar.innerHTML = `<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
-    profileIcon.style.display = "block";
-}else{
+/* =========================
+   RENDER AUTH UI
+========================= */
+if (isLoggedIn) {
     authBar.innerHTML = `
-        <button class="login-btn" onclick="go('login.html')"><i class="fas fa-sign-in-alt"></i> Login</button>
-        <button class="signup-btn" onclick="go('create.html')"><i class="fas fa-user-plus"></i>Sign Up</button>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    `;
+    profileIcon.style.display = "block";
+} else {
+    authBar.innerHTML = `
+        <button class="login-btn" onclick="go('login.html')">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        <button class="signup-btn" onclick="go('create.html')">
+            <i class="fas fa-user-plus"></i> Sign Up
+        </button>
     `;
     profileIcon.style.display = "none";
 }
 
-/* Toast */
-function showToast(msg){
+/* =========================
+   TOAST MESSAGE
+========================= */
+function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
-    setTimeout(()=>toast.classList.remove("show"), 2000);
+    setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
-/* Card click handling */
+/* =========================
+   CARD CLICK HANDLING
+========================= */
 document.querySelectorAll('.card[data-page]').forEach(card => {
-    card.addEventListener('click', ()=> {
-        const page = card.getAttribute('data-page');
-        if (!isLoggedIn && page !== 'app.html'){
-            localStorage.setItem('redirectAfterLogin', page);
+    const page = card.getAttribute('data-page');
+
+    /* Disable visually if not logged in */
+    if (!isLoggedIn && page !== "app.html") {
+        card.classList.add("disabled");
+    }
+
+    card.addEventListener('click', () => {
+
+        if (!isLoggedIn && page !== "app.html") {
+            localStorage.setItem("redirectAfterLogin", page);
             showToast("Please log in to access this feature");
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1200);
+
             return;
         }
-        localStorage.setItem('lastPage', page);
+
+        localStorage.setItem("lastPage", page);
         window.location.href = page;
     });
-
-    if (!isLoggedIn && card.getAttribute('data-page') !== 'app.html'){
-        card.classList.add('disabled');
-    }
 });
 
-/* Navigation helper */
-function go(page){
+/* =========================
+   NAVIGATION HELPER
+========================= */
+function go(page) {
     window.location.href = page;
 }
 
-/* Logout */
-function logout(){
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('redirectAfterLogin');
-    localStorage.removeItem('lastPage');
+/* =========================
+   LOGOUT
+========================= */
+function logout() {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_email");
+    localStorage.removeItem("redirectAfterLogin");
+    localStorage.removeItem("lastPage");
+
     window.location.href = "index.html";
 }
-    // Show site update notice once per session
-const notice = document.getElementById("siteUpdateNotice");
-const closeBtn = document.getElementById("closeNotice");
-
-// Check if user has dismissed notice before
-if (!sessionStorage.getItem("siteUpdateDismissed")) {
-    setTimeout(() => {
-        notice.classList.add("show");
-    }, 500); // small delay for smooth appearance
-}
-
-// Close button click
-closeBtn.addEventListener("click", () => {
-    notice.classList.remove("show");
-    sessionStorage.setItem("siteUpdateDismissed", "true");
-});
 </script>
 
 </body>
