@@ -21,6 +21,50 @@ body {
 /* ==========================
    HEADER
 ========================== */
+/* Header layout fix */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* key */
+    padding: 10px 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+/* Left side (logo + title) */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Profile icon */
+.profile-icon {
+    font-size: 30px;
+    color: #4f46e5; /* indigo */
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1);
+    color: #16a34a; /* green on hover */
+}
+
+/* Mobile adjustment */
+@media (max-width: 600px) {
+    .header h2 {
+        font-size: 1em;
+    }
+
+    .profile-icon {
+        font-size: 26px;
+    }
+}
 .header {
     position: fixed;
     top: 0;
