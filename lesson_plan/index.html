@@ -30,17 +30,7 @@
     text-decoration: underline;
     margin: 0 5px;
       }
-        .header {
-    position: fixed;
-    top: 0; width: 100%;
-    background: #fff;
-    padding:14px 16px;
-    display:flex; justify-content:space-between; align-items:center;
-    box-shadow:0 2px 8px rgba(0,0,0,.08); z-index:1000;
-}
-.brand { display:flex; align-items:center; gap:10px; }
-.brand img { width:40px; }
-.brand h1 { font-size:18px; }
+      
         body{
             background: linear-gradient(135deg, #6dd5fa, #2980b9);
         }
@@ -81,13 +71,11 @@
 
 <div class="container">
     <!-- Header -->
-    <header class="header>
-    <div class="brand">
+    <div class="header">
         <img src="../logo.png">
         <h2>Fila Assistant</h2>
     </div>
     <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('../profile.html')" title="My Profile"></i> 
-</header>
     <!-- Form -->
     <div class="form-container">
         <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
