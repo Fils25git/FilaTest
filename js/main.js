@@ -547,61 +547,82 @@ function normalizeMath(content) {
        SEARCH NOTES BY HEADING
     ================================ */
 
-    function searchNotes(query) {
+    
+                                 /* ===============================
+   SEARCH NOTES BY HEADING + TEXT PATTERN (HYBRID)
+=============================== */
+
+// 1️⃣ Keep old heading search (renamed)
+function searchByHeadings(query) {
     if (!currentNotesHTML) return null;
 
     const container = document.createElement("div");
     container.innerHTML = currentNotesHTML;
 
     const q = query.trim().toLowerCase();
+    const headings = Array.from(container.querySelectorAll("h1,h2,h3,h4,h5,h6"));
 
-    /* =====================================
-       1️⃣ FIND MATCHING HEADING
-    ====================================== */
-    const headings = Array.from(
-        container.querySelectorAll("h1, h2, h3, h4, h5, h6")
-    );
-
-    const target = headings.find(h =>
-        h.textContent.toLowerCase().includes(q)
-    );
-
+    const target = headings.find(h => h.textContent.toLowerCase().includes(q));
     if (!target) return null;
 
-    const targetLevel = parseInt(target.tagName[1], 10);
-
-    /* =====================================
-       2️⃣ WALK DOM IGNORING <div>
-    ====================================== */
+    const level = parseInt(target.tagName[1], 10);
     let html = target.outerHTML;
 
-    const walker = document.createTreeWalker(
-        container,
-        NodeFilter.SHOW_ELEMENT,
-        null
-    );
-
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
     walker.currentNode = target;
 
     while (walker.nextNode()) {
         const node = walker.currentNode;
-
-        // Stop at next same or higher heading
-        if (
-            /^H[1-6]$/i.test(node.tagName) &&
-            parseInt(node.tagName[1], 10) <= targetLevel
-        ) {
-            break;
-        }
-
-        // Skip the target itself
-        if (node === target) continue;
-
-        html += node.outerHTML;
+        if (/^H[1-6]$/i.test(node.tagName) && parseInt(node.tagName[1], 10) <= level) break;
+        if (node !== target) html += node.outerHTML;
     }
 
     return html;
-                                 }
+}
+
+// 2️⃣ Add new text-pattern search
+function normalizeNotes(html) {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    div.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+    return div.innerText.replace(/\r/g, "").replace(/\n{2,}/g, "\n\n");
+}
+
+function buildNotesIndex(text) {
+    return text.split("\n").map((line, i) => {
+        const t = line.trim();
+        if (/^UNIT\s+\d+/i.test(t)) return { type: "unit", title: t, line: i };
+        if (/^\d+\.\d+/.test(t)) return { type: "lesson", title: t, line: i };
+        return null;
+    }).filter(Boolean);
+}
+
+function searchByTextPattern(query) {
+    if (!currentNotesHTML) return null;
+
+    const text = normalizeNotes(currentNotesHTML);
+    const lines = text.split("\n");
+    const index = buildNotesIndex(text);
+
+    const target = index.find(i => i.title.toLowerCase().includes(query.toLowerCase()));
+    if (!target) return null;
+
+    const start = target.line;
+    const end = index.find(i => i.line > start)?.line || lines.length;
+
+    return lines.slice(start, end).join("\n");
+}
+
+// 3️⃣ Final hybrid search (replace old `searchNotes` calls with this)
+function searchNotes(query) {
+    const byHeading = searchByHeadings(query);
+    if (byHeading) return byHeading;
+
+    const byText = searchByTextPattern(query);
+    if (byText) return byText;
+
+    return null;
+                                                    }
     /* ===============================
        CREATE NOTE BUBBLE
     ================================ */
