@@ -1,14 +1,14 @@
-const chromium = require("chrome-aws-lambda");
-const puppeteer = require("puppeteer-core");
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const { html, title } = JSON.parse(event.body);
 
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath,
-      headless: true,
+      headless: true
     });
 
     const page = await browser.newPage();
@@ -66,6 +66,10 @@ exports.handler = async (event) => {
     };
 
   } catch (err) {
-    return { statusCode: 500, body: "PDF failed" };
+    console.error(err);
+    return {
+      statusCode: 500,
+      body: "PDF generation failed"
+    };
   }
 };
