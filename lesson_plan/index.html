@@ -244,10 +244,24 @@
         french: "french_plans"
     };
 
-    function getRandomPlanFile(language) {
-        const folder = planFolders[language] || "proposals";
-        const index = Math.floor(Math.random() * 10) + 1;
-        return `${folder}/plan${index}.html`;
+    function getNextPlanFile(language, email) {
+    const folder = planFolders[language] || "proposals";
+
+    // English has 15 plans, others have 10
+    const totalPlans = language === "english" ? 15 : 10;
+
+    const storageKey = `last_plan_${language}_${email}`;
+    let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
+
+    let nextIndex = lastIndex + 1;
+
+    if (nextIndex > totalPlans) {
+        nextIndex = 1; // restart after finishing all plans
+    }
+
+    localStorage.setItem(storageKey, nextIndex);
+
+    return `${folder}/plan${nextIndex}.html`;
     }
 
     // ===============================
@@ -340,7 +354,7 @@
             references: references.value || defaults.references[language]
         };
 
-        fetch(getRandomPlanFile(language))
+        fetch(getNextPlanFile(language, userEmail))
             .then(res => res.text())
             .then(template => {
 
