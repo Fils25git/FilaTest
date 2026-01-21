@@ -30,6 +30,50 @@
     text-decoration: underline;
     margin: 0 5px;
       }
+        /* ===============================
+   FORCE SINGLE-PAGE PDF
+=============================== */
+@media print {
+
+  body {
+    background: #fff !important;
+  }
+
+  /* Hide everything except lesson plan */
+  body * {
+    visibility: hidden;
+  }
+
+  #lessonPlanContent,
+  #lessonPlanContent * {
+    visibility: visible;
+  }
+
+  #lessonPlanContent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    
+    /* SCALE DOWN TO FIT ONE PAGE */
+    transform: scale(0.85);
+    transform-origin: top left;
+  }
+
+  /* Force single page */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Remove page breaks */
+  .lesson-plan,
+  table,
+  tr,
+  td {
+    page-break-inside: avoid;
+  }
+}
       
         body{
             background: linear-gradient(135deg, #6dd5fa, #2980b9);
@@ -197,7 +241,7 @@
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+            <button class="download-btn btn-pdf" onclick="downloadPDF()">⬇️ Save as PDF</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -432,6 +476,15 @@
     function go(path) {
     window.location.href = path;
 }
+    function downloadPDF() {
+    // Ensure content is not editable
+    lessonPlanContent.contentEditable = false;
+    editBtn.disabled = false;
+    saveBtn.disabled = true;
+
+    // Trigger print → Save as PDF
+    window.print();
+                }
 </script>
 
 </body>
